@@ -38,5 +38,36 @@
 
 ## 发布
 
-把本目录内容推送到代码仓库后，在仓库设置中开启 Pages 服务（分支选 `master`，目录选根目录），
-稍等片刻即可通过 Pages 分配的地址访问。
+## 发布（Pages）
+
+> 说明：Gitee（码云）的 Pages 服务已于 2024 年下线，仓库设置里已经没有该入口，
+> 因此本作品改用 GitHub Pages 发布，步骤与码云 Pages 基本一致（都是选分支 + 选根目录）。
+
+### 路线 A：GitHub Pages（推荐，长期有效）
+
+1. 在 GitHub 新建一个**公开**仓库，例如 `myhouse`。
+2. 给本地仓库加一个 GitHub 远程，并把代码推上去：
+
+   ```bash
+   git remote add github git@github.com:你的用户名/myhouse.git
+   git push github master
+   ```
+
+3. 打开仓库 `Settings → Pages`，`Source` 选 `Deploy from a branch`，
+   分支选 `master`，目录选 `/ (root)`，保存。
+4. 等 1–2 分钟，访问 `https://你的用户名.github.io/myhouse/` 即为首页。
+5. 之后每次 `git push github master`，网站会自动更新。
+
+推送前请确认根目录有 `index.html`（本仓库已满足），`.nojekyll` 用于跳过 Jekyll 处理，
+避免文件名以下划线开头的资源被忽略。
+
+### 路线 B：Netlify / Cloudflare Pages（不用账号也能先看效果）
+
+打开 <https://app.netlify.com/drop>，把整个项目文件夹（或打包好的 zip）直接拖进页面，
+几秒后即可得到一个可访问的网址；注册后可保留该地址并绑定自定义域名。
+
+### 路线 C：只做本机演示
+
+直接双击 `index.html` 即可完整浏览，无需服务器。
+若作业要求必须提交公网地址，请使用路线 A 或 B。
+
