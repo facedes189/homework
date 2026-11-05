@@ -3,6 +3,9 @@
 《计算机基础》课程设计作品。一个用纯手写 HTML / CSS 搭建的个人网站，共 6 个页面，
 托管在代码仓库并通过 Pages 服务发布。
 
+**在线地址：<https://facedes189.github.io/myhouse/>**
+仓库：<https://github.com/facedes189/myhouse>（发布用） · <https://gitee.com/faded-to-perfection/faded>（源码）
+
 ## 目录结构
 
 ```
