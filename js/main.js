@@ -45,16 +45,14 @@
     box.className = 'lightbox';
     box.innerHTML =
       '<button class="close" type="button" aria-label="关闭">&times;</button>' +
-      '<div><img alt=""><div class="cap"></div></div>';
+      '<div><img alt=""></div>';
     document.body.appendChild(box);
 
     var boxImg = box.querySelector('img');
-    var boxCap = box.querySelector('.cap');
 
-    function openBox(src, alt, cap) {
+    function openBox(src, alt) {
       boxImg.src = src;
       boxImg.alt = alt || '';
-      boxCap.textContent = cap || alt || '';
       box.classList.add('open');
       document.body.style.overflow = 'hidden';
     }
@@ -66,8 +64,7 @@
     shots.forEach(function (shot) {
       shot.addEventListener('click', function () {
         var img = shot.querySelector('img');
-        var cap = shot.querySelector('figcaption');
-        openBox(img.getAttribute('src'), img.getAttribute('alt'), cap ? cap.textContent : '');
+        openBox(img.getAttribute('src'), img.getAttribute('alt'));
       });
     });
     box.addEventListener('click', function (e) {

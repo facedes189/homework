@@ -679,21 +679,6 @@ ul, ol { list-style: none; }
   transition: transform .65s cubic-bezier(.2, .8, .3, 1), filter .4s;
 }
 .shot:hover img { transform: scale(1.07); filter: saturate(1.06); }
-.shot figcaption {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  padding: 26px 14px 12px;
-  color: #fff;
-  font-size: 13px;
-  letter-spacing: 1px;
-  background: linear-gradient(transparent, rgba(12, 30, 48, .78));
-  transform: translateY(6px);
-  opacity: 0;
-  transition: opacity .3s, transform .3s;
-}
-.shot:hover figcaption { opacity: 1; transform: translateY(0); }
 .shot::after {
   content: "+";
   position: absolute;
@@ -727,7 +712,6 @@ ul, ol { list-style: none; }
   border-radius: 10px;
   box-shadow: 0 30px 60px rgba(0, 0, 0, .5);
 }
-.lightbox .cap { color: #e9e2d6; text-align: center; margin-top: 16px; font-size: 13px; letter-spacing: 2px; }
 .lightbox .close {
   position: absolute;
   top: 26px;
