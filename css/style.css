@@ -222,7 +222,6 @@ ul, ol { list-style: none; }
 .nav-inner a:hover::after { transform: scaleX(1); }
 .nav-inner a.active { color: #fff; font-weight: 600; }
 .nav-inner a.active::after { transform: scaleX(1); background: #ffb9a8; }
-.nav-mail { margin-left: auto; color: #ffe0d8 !important; }
 
 /* ---------------- 主体两栏 ---------------- */
 .layout {
@@ -420,17 +419,6 @@ ul, ol { list-style: none; }
   margin-top: 10px;
   font-family: var(--kai);
 }
-.hero .welcome .dot {
-  display: inline-block;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--red);
-  vertical-align: middle;
-  margin: 0 2px 3px;
-  animation: blink 1.6s ease-in-out infinite;
-}
-@keyframes blink { 50% { opacity: .25; } }
 .hero p.intro {
   margin-top: 22px;
   max-width: 560px;
@@ -1023,7 +1011,6 @@ ul, ol { list-style: none; }
   .stage .balloon2,
   .sweep::after,
   .typing,
-  .hero .welcome .dot { animation: none !important; }
   .cloud.c1 { left: 8%; }
   .cloud.c2 { left: 28%; top: 104px; }
   .cloud.c3 { left: 64%; }
