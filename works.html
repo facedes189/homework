@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>动画作品 · 小小的家 | Faded 的个人主页</title>
+  <meta name="description" content="四件纯 CSS 制作的小动画：地球自转、气球上升、光线掠过与打字机。">
+  <script>document.documentElement.className = 'js';</script>
+  <link rel="icon" href="images/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="wrap header-inner">
+      <a class="brand" href="index.html">
+        <span class="brand-mark">
+          <svg width="30" height="30" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+            <path d="M5 15 16 6l11 9" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M8 14.6V26h16V14.6" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+            <rect x="13.4" y="19" width="5.2" height="7" rx="1.4" fill="#e1553c"/>
+          </svg>
+        </span>
+        <span class="brand-text">
+          <strong>小小的家</strong>
+          <span>My Little House · Since 2026</span>
+        </span>
+      </a>
+      <p class="header-note">
+        《计算机基础》课程设计作品<br>
+        <b>6 个页面 · 纯手写 HTML / CSS</b>
+      </p>
+    </div>
+  </header>
+
+  <div class="banner">
+    <svg class="banner-scene" viewBox="0 0 1200 90" preserveAspectRatio="none" aria-hidden="true">
+      <path d="M0 60c130-24 210 8 330 2s180-26 300-18 200 26 300 18 170-18 270-8v36H0z" fill="#dce9f6"/>
+      <path d="M0 74c140-16 220 6 360 0s220-18 340-10 180 16 280 10 140-6 220 0v16H0z" fill="#c6d9ee"/>
+      <path d="M556 80V64l15-12 15 12v16z" fill="#ffffff" opacity=".92"/>
+      <rect x="566" y="69" width="5" height="6" fill="#c6d9ee"/>
+      <path d="M604 80V70l9-7 9 7v10z" fill="#ffffff" opacity=".78"/>
+      <path d="M520 80V68l10-8 10 8v12z" fill="#ffffff" opacity=".6"/>
+    </svg>
+    <svg class="cloud c1" viewBox="0 0 120 50" aria-hidden="true"><path d="M30 44c-12 0-20-7-20-16S18 12 28 13c3-7 10-11 18-11 10 0 18 6 20 14 9-2 18 4 18 13 0 9-8 15-17 15H30z"/></svg>
+    <svg class="cloud c2" viewBox="0 0 120 50" aria-hidden="true"><path d="M30 44c-12 0-20-7-20-16S18 12 28 13c3-7 10-11 18-11 10 0 18 6 20 14 9-2 18 4 18 13 0 9-8 15-17 15H30z"/></svg>
+    <svg class="cloud c3" viewBox="0 0 120 50" aria-hidden="true"><path d="M30 44c-12 0-20-7-20-16S18 12 28 13c3-7 10-11 18-11 10 0 18 6 20 14 9-2 18 4 18 13 0 9-8 15-17 15H30z"/></svg>
+    <div class="banner-inner">
+      <div class="banner-slogan">会动的东西，总是更可爱一点</div>
+      <div class="banner-sub">Motion · Pure CSS</div>
+      <svg class="balloon b1" viewBox="0 0 30 46" aria-hidden="true">
+        <ellipse cx="15" cy="15" rx="11" ry="13.5" fill="#e1553c"/>
+        <path d="M15 28.5l-3 4h6z" fill="#c8452f"/>
+        <path d="M15 33c3 4-3 6 0 11" stroke="#c9d4de" stroke-width="1.2" fill="none"/>
+      </svg>
+      <svg class="balloon b2" viewBox="0 0 30 46" aria-hidden="true">
+        <ellipse cx="15" cy="15" rx="11" ry="13.5" fill="#0b5fa5"/>
+        <path d="M15 28.5l-3 4h6z" fill="#08406f"/>
+        <path d="M15 33c3 4-3 6 0 11" stroke="#c9d4de" stroke-width="1.2" fill="none"/>
+      </svg>
+      <svg class="balloon b3" viewBox="0 0 30 46" aria-hidden="true">
+        <ellipse cx="15" cy="15" rx="11" ry="13.5" fill="#f0b429"/>
+        <path d="M15 28.5l-3 4h6z" fill="#d49b1c"/>
+        <path d="M15 33c3 4-3 6 0 11" stroke="#c9d4de" stroke-width="1.2" fill="none"/>
+      </svg>
+    </div>
+  </div>
+
+  <nav class="site-nav">
+    <div class="wrap nav-inner">
+      <a href="index.html">首 页</a>
+      <a href="about.html">个人简介</a>
+      <a href="works.html" class="active">动画作品</a>
+      <a href="gallery.html">我的相册</a>
+      <a href="thoughts.html">学习心得</a>
+      <a class="nav-mail" href="contact.html">写信给我</a>
+    </div>
+  </nav>
+
+  <div class="wrap">
+    <div class="layout">
+
+      <aside class="side">
+        <div class="card">
+          <div class="side-head">
+            <div class="avatar">F</div>
+            <h3>动画作品</h3>
+            <p>4 件作品 · 0 个插件</p>
+          </div>
+          <nav class="side-list">
+            <a href="#w1">01 · 地球自转</a>
+            <a href="#w2">02 · 气球上升</a>
+            <a href="#w3">03 · 光线掠过</a>
+            <a href="#w4">04 · 终端打字</a>
+          </nav>
+          <div class="side-note">
+            <h4>一句说明</h4>
+            <p>当年这些效果要用 Flash 才能做，如今几行 CSS 动画就足够了。</p>
+          </div>
+        </div>
+      </aside>
+
+      <main class="main">
+        <h1 class="page-title">动画作品</h1>
+        <p class="page-lead">
+          向 Flash 时代致敬。这四个小动画全部由 <code>@keyframes</code> 驱动，没有引入任何第三方库。
+        </p>
+
+        <section class="section">
+          <div class="section-head">
+            <h2>四件小作品</h2>
+            <span>Works</span>
+          </div>
+
+          <div class="work-grid two">
+
+            <article class="work reveal" id="w1">
+              <div class="stage dark">
+                <div class="orbit"><i></i></div>
+                <div class="globe"></div>
+              </div>
+              <div class="work-body">
+                <h3>01 · 地球自转</h3>
+                <p>用圆形渐变做出球体的光影，再把“大陆”当作背景图循环平移，就有了转起来的地球。</p>
+                <p style="margin-top:8px"><code>radial-gradient</code> + <code>background-position</code></p>
+              </div>
+            </article>
+
+            <article class="work reveal" id="w2">
+              <div class="stage">
+                <svg class="balloon2" viewBox="0 0 40 62" aria-hidden="true">
+                  <ellipse cx="20" cy="20" rx="15" ry="18" fill="#e1553c"/>
+                  <ellipse cx="14" cy="13" rx="4.5" ry="6" fill="#f7a496" opacity=".65"/>
+                  <path d="M20 38l-4 5h8z" fill="#c8452f"/>
+                  <path d="M20 43c4 5-4 8 0 15" stroke="#b9c6d2" stroke-width="1.4" fill="none"/>
+                </svg>
+              </div>
+              <div class="work-body">
+                <h3>02 · 气球上升</h3>
+                <p>一上一下的缓慢漂浮，配合轻微的旋转，比直线运动更像“被风吹着”。</p>
+                <p style="margin-top:8px"><code>animation</code> + <code>ease-in-out</code></p>
+              </div>
+            </article>
+
+            <article class="work reveal" id="w3">
+              <div class="stage dark">
+                <div class="sweep"></div>
+                <div class="sweep-title">光 线 掠 过</div>
+              </div>
+              <div class="work-body">
+                <h3>03 · 光线掠过</h3>
+                <p>一条半透明的白色斜条，从左扫到右，再停一会儿——旧版动画里最经典的那道光。</p>
+                <p style="margin-top:8px"><code>transform: rotate</code> + <code>linear-gradient</code></p>
+              </div>
+            </article>
+
+            <article class="work reveal" id="w4">
+              <div class="stage dark">
+                <div class="typing">&gt; hello, little house</div>
+              </div>
+              <div class="work-body">
+                <h3>04 · 终端打字</h3>
+                <p>用宽度动画配合等宽字体，模拟命令行里逐字出现的效果，光标则在末尾闪烁。</p>
+                <p style="margin-top:8px"><code>steps()</code> + <code>border-right</code></p>
+              </div>
+            </article>
+
+          </div>
+        </section>
+
+        <section class="section reveal">
+          <div class="section-head">
+            <h2>为什么不用 Flash 了</h2>
+            <span>Backstory</span>
+          </div>
+          <div class="prose">
+            <p>
+              我在参考旧教程时看到，十多年前的个人主页几乎都会在页头放一个 <code>.swf</code> 动画，
+              用 Flash 做按钮、做横幅、做相册翻页。那套做法在今天已经走不通了：
+              浏览器停止支持 Flash 插件，手机上也从来没能播放过。
+            </p>
+            <p>
+              所以我把那些“闪动的部分”重新想了一遍——它们真正想要的不过是<b>让页面有呼吸感</b>。
+              这件事现在交给 CSS 动画就够了，而且更轻、更省电、在手机上也不会卡。
+              上面四个作品，就是我对那段历史的一次小小的转译。
+            </p>
+          </div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="wrap footer-inner">
+      <div>
+        <div class="brand-mini">小小的家</div>
+        <p>Copyright &copy; <span id="year">2026</span> Faded 版权所有 · 用心生活，认真记录</p>
+      </div>
+      <div>
+        <p id="today">今天是好日子</p>
+        <p class="footer-friends">
+          <a href="index.html">首页</a>
+          <a href="about.html">关于我</a>
+          <a href="gallery.html">相册</a>
+          <a href="contact.html">联系</a>
+        </p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/main.js"></script>
+</body>
+</html>
