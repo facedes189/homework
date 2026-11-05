@@ -1,4 +1,4 @@
-/* 小小的家 · 交互脚本
+/* 个人网页 · 交互脚本
    1) 滚动进入视口时淡入
    2) 技能条进入视口时生长
    3) 相册灯箱
@@ -97,7 +97,7 @@
       var name = form.elements.name.value.trim();
       var mail = form.elements.email.value.trim();
       var text = form.elements.message.value.trim();
-      var subject = encodeURIComponent('来自「小小的家」的留言 - ' + (name || '一位访客'));
+      var subject = encodeURIComponent('来自「个人网页」的留言 - ' + (name || '一位访客'));
       var body = encodeURIComponent(text + '\n\n—— ' + name + (mail ? '（' + mail + '）' : ''));
       window.location.href = 'mailto:1135759939@qq.com?subject=' + subject + '&body=' + body;
       var tip = document.getElementById('form-tip');
