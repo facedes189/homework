@@ -1,10 +1,10 @@
-# 小小的家 · 个人主页
+# 个人网页 · faded
 
 《计算机基础》课程设计作品。一个用纯手写 HTML / CSS 搭建的个人网站，共 5 个页面，
 托管在代码仓库并通过 Pages 服务发布。
 
-**在线地址：<https://facedes189.github.io/myhouse/>**
-仓库：<https://github.com/facedes189/myhouse>（发布用） · <https://gitee.com/faded-to-perfection/faded>（源码）
+**在线地址：<https://facedes189.github.io/homework/>**
+仓库：<https://github.com/facedes189/homework>（发布用） · <https://gitee.com/faded-to-perfection/faded>（源码）
 
 ## 目录结构
 
@@ -38,8 +38,6 @@
 
 直接双击 `index.html` 即可，无需服务器。
 
-## 发布
-
 ## 发布（Pages）
 
 > 说明：Gitee（码云）的 Pages 服务已于 2024 年下线，仓库设置里已经没有该入口，
@@ -47,17 +45,17 @@
 
 ### 路线 A：GitHub Pages（推荐，长期有效）
 
-1. 在 GitHub 新建一个**公开**仓库，例如 `myhouse`。
+1. 在 GitHub 新建一个**公开**仓库，例如 `homework`。
 2. 给本地仓库加一个 GitHub 远程，并把代码推上去：
 
    ```bash
-   git remote add github git@github.com:你的用户名/myhouse.git
+   git remote add github git@github.com:你的用户名/homework.git
    git push github master
    ```
 
 3. 打开仓库 `Settings → Pages`，`Source` 选 `Deploy from a branch`，
    分支选 `master`，目录选 `/ (root)`，保存。
-4. 等 1–2 分钟，访问 `https://你的用户名.github.io/myhouse/` 即为首页。
+4. 等 1–2 分钟，访问 `https://你的用户名.github.io/homework/` 即为首页。
 5. 之后每次 `git push github master`，网站会自动更新。
 
 推送前请确认根目录有 `index.html`（本仓库已满足），`.nojekyll` 用于跳过 Jekyll 处理，
