@@ -285,12 +285,6 @@ a { color: inherit; text-decoration: none; }
   color: var(--ink-3);
   text-transform: uppercase;
 }
-.section-head::after {
-  content: "";
-  flex: 1;
-  height: 1px;
-  background: linear-gradient(90deg, var(--line), transparent);
-}
 
 .prose p { margin-bottom: 14px; font-size: 15px; }
 .prose p:last-child { margin-bottom: 0; }
