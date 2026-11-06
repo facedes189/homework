@@ -624,7 +624,6 @@ ul, ol { list-style: none; }
   background: none;
   border: 0;
 }
-.lightbox .close:hover { opacity: 1; transform: rotate(90deg); }
 
 /* ---------------- 作品页（致敬 Flash 动效） ---------------- */
 .work-grid {
@@ -883,17 +882,14 @@ ul, ol { list-style: none; }
   letter-spacing: 2px;
   font-family: inherit;
   cursor: pointer;
-  transition: background .22s, transform .22s, box-shadow .22s;
   box-shadow: 0 6px 16px rgba(11, 95, 165, .22);
 }
-.btn:hover { background: var(--blue-deep); transform: translateY(-2px); box-shadow: 0 9px 22px rgba(11, 95, 165, .28); color: #fff; }
 .btn.ghost {
   background: transparent;
   color: var(--ink-2);
   border: 1px solid var(--line);
   box-shadow: none;
 }
-.btn.ghost:hover { border-color: var(--blue); color: var(--blue); background: #fff; }
 .form-card.plain {
   background: transparent;
   border: 0;
@@ -901,7 +897,6 @@ ul, ol { list-style: none; }
   padding: 0;
   box-shadow: none;
 }
-.form-tip { font-size: 12px; color: var(--ink-3); margin-top: 12px; letter-spacing: .5px; }
 
 /* ---------------- 页脚 ---------------- */
 .site-footer {
