@@ -404,54 +404,21 @@ ul, ol { list-style: none; }
 }
 .tag.warm { background: var(--red-light); color: var(--red); border-color: #f9d5cc; }
 
-/* 入口卡片 */
-.entry-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 18px;
+/* 跳转列表 */
+.link-list {
+  border-top: 1px solid var(--line);
 }
-.entry-grid.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-.entry {
-  background: var(--white);
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  padding: 24px 20px 22px;
-  box-shadow: var(--shadow-sm);
-  transition: transform .3s cubic-bezier(.2, .8, .3, 1), box-shadow .3s, border-color .3s;
-  position: relative;
-  overflow: hidden;
+.link-list li {
+  border-bottom: 1px solid var(--line);
 }
-.entry:hover {
-  transform: translateY(-5px);
-  box-shadow: var(--shadow-md);
-  border-color: #d9e8f5;
-}
-.entry .ico {
-  width: 40px;
-  height: 40px;
-  border-radius: 11px;
-  background: var(--blue-light);
-  color: var(--blue);
-  display: grid;
-  place-items: center;
-  margin-bottom: 14px;
-}
-.entry h3 {
-  font-size: 15.5px;
+.link-list a {
+  display: block;
+  padding: 15px 2px;
+  font-size: 15px;
   color: var(--ink);
   letter-spacing: 1px;
-  margin-bottom: 6px;
-  font-weight: 600;
 }
-.entry p { font-size: 12.8px; color: var(--ink-3); line-height: 1.75; }
-.entry .go {
-  font-size: 12.5px;
-  color: var(--red);
-  margin-top: 12px;
-  display: inline-block;
-  letter-spacing: 1px;
-}
-.entry:hover .go { letter-spacing: 3px; }
+.link-list a:hover { color: var(--blue); }
 
 /* 动态列表 */
 .news { background: var(--white); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
@@ -981,7 +948,7 @@ ul, ol { list-style: none; }
 @media (max-width: 960px) {
   .layout { grid-template-columns: 1fr; gap: 24px; }
   .side { position: static; grid-template-columns: repeat(2, 1fr); }
-  .entry-grid, .work-grid { grid-template-columns: repeat(2, 1fr); }
+  .work-grid { grid-template-columns: repeat(2, 1fr); }
   .gallery { grid-template-columns: repeat(2, 1fr); }
   .header-note { display: none; }
 }
@@ -1012,7 +979,7 @@ ul, ol { list-style: none; }
   .hero { padding: 32px 22px 30px; }
   .hero .welcome { font-size: 15px; letter-spacing: 6px; }
   .side { grid-template-columns: 1fr; }
-  .entry-grid, .work-grid, .gallery, .contact-grid, .fact-grid { grid-template-columns: 1fr; }
+  .work-grid, .gallery, .contact-grid, .fact-grid { grid-template-columns: 1fr; }
   .nav-inner a { padding: 13px 14px; font-size: 13.5px; }
   .page-title { font-size: 26px; }
   .info-block, .form-card { padding: 22px 18px; }
