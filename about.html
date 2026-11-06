@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>个人简介 · 个人网页 | faded 的个人主页</title>
-  <meta name="description" content="关于我：个人概况、联系方式与教育背景。">
+  <meta name="description" content="关于我：个人概况、联系方式、教育背景与写信给我。">
   <script>document.documentElement.className = 'js';</script>
   <link rel="icon" href="images/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="css/style.css">
@@ -54,6 +54,7 @@
             <a href="#2">02 · 联系方式</a>
             
             <a href="#4">03 · 教育背景</a>
+            <a href="#5">04 · 写信给我</a>
           </nav>
         </div>
       </aside>
@@ -101,6 +102,27 @@
               <p class="desc">开始用手机拍照，学会记录生活里那些说不清但舍不得忘的瞬间。</p>
             </li>
           </ul>
+        </section>
+
+        <section class="info-block reveal" id="5">
+          <h2><span class="num">04</span>写信给我<small>Write to me</small></h2>
+          <div class="rule"></div>
+          <form class="form-card plain" id="letter-form" novalidate>
+            <div class="field">
+              <label for="f-name">你的称呼</label>
+              <input id="f-name" name="name" type="text" placeholder="怎么称呼你？" autocomplete="name">
+            </div>
+            <div class="field">
+              <label for="f-mail">你的邮箱（方便我回信）</label>
+              <input id="f-mail" name="email" type="email" placeholder="name@example.com" autocomplete="email">
+            </div>
+            <div class="field">
+              <label for="f-msg">想说的话</label>
+              <textarea id="f-msg" name="message" placeholder="在这里写下你的留言……"></textarea>
+            </div>
+            <button class="btn" type="submit">寄出这封信</button>
+            <p class="form-tip" id="form-tip">纯静态页面，点「寄出这封信」会调用你电脑上的邮件客户端，内容不会上传到任何服务器。</p>
+          </form>
         </section>
 
       </main>

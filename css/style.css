@@ -894,6 +894,13 @@ ul, ol { list-style: none; }
   box-shadow: none;
 }
 .btn.ghost:hover { border-color: var(--blue); color: var(--blue); background: #fff; }
+.form-card.plain {
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  box-shadow: none;
+}
 .form-tip { font-size: 12px; color: var(--ink-3); margin-top: 12px; letter-spacing: .5px; }
 
 /* ---------------- 页脚 ---------------- */
