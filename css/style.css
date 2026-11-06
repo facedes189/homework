@@ -104,14 +104,6 @@ ul, ol { list-style: none; }
   line-height: 1.2;
   font-weight: 700;
 }
-.brand-text span {
-  display: block;
-  font-size: 11px;
-  letter-spacing: 3.4px;
-  text-transform: uppercase;
-  color: var(--ink-3);
-  margin-top: 2px;
-}
 
 .header-note {
   text-align: right;
@@ -1009,7 +1001,6 @@ ul, ol { list-style: none; }
   .nav-inner a { padding: 13px 14px; font-size: 13.5px; }
   .header-left { gap: 14px; }
   .brand-text strong { font-size: 22px; letter-spacing: 2px; }
-  .brand-text span { display: none; }
   .back-home { font-size: 12.5px; letter-spacing: 1px; }
 }
 
