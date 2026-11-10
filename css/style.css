@@ -985,3 +985,64 @@ a { color: inherit; text-decoration: none; }
   .news li { flex-direction: column; gap: 2px; }
   .news time { width: auto; }
 }
+
+/* ---------------- 悬停：抬起 / 浮动反馈 ---------------- */
+/* 只做位移与阴影，不改字色、不出现下划线。
+   用 translate 单独控制位移，避免与 .reveal 的 transform 冲突 */
+.btn {
+  transition: translate .24s cubic-bezier(.2, .8, .3, 1), box-shadow .24s ease;
+}
+.btn:hover {
+  translate: 0 -3px;
+  box-shadow: 0 12px 26px rgba(11, 95, 165, .32);
+}
+.btn:active {
+  translate: 0 -1px;
+  box-shadow: 0 6px 16px rgba(11, 95, 165, .22);
+}
+
+.nav-inner a {
+  border-radius: 9px;
+  transition: background .22s ease, translate .22s ease;
+}
+.nav-inner a:hover {
+  background: rgba(255, 255, 255, .11);
+  translate: 0 -2px;
+}
+
+.side-list a {
+  transition: background .22s ease, translate .24s cubic-bezier(.2, .8, .3, 1);
+}
+.side-list a:hover {
+  background: var(--blue-light);
+  translate: 4px 0;
+}
+
+.link-list a {
+  transition: translate .24s cubic-bezier(.2, .8, .3, 1);
+}
+.link-list a:hover { translate: 8px 0; }
+
+.work {
+  transition: translate .28s cubic-bezier(.2, .8, .3, 1), box-shadow .28s ease;
+}
+.work:hover {
+  translate: 0 -6px;
+  box-shadow: var(--shadow-md);
+}
+
+.post {
+  transition: translate .28s cubic-bezier(.2, .8, .3, 1), box-shadow .28s ease;
+}
+.post:hover {
+  translate: 0 -4px;
+  box-shadow: var(--shadow-md);
+}
+
+.shot {
+  transition: translate .28s cubic-bezier(.2, .8, .3, 1), box-shadow .28s ease;
+}
+.shot:hover {
+  translate: 0 -4px;
+  box-shadow: var(--shadow-md);
+}
