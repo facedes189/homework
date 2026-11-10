@@ -136,4 +136,75 @@
       nums.forEach(countUp);
     }
   }
+
+  /* ---------- 7. 点赞（全站累计，可以一直点） ---------- */
+  var likeBtn = document.getElementById('like-btn');
+  var likeNum = document.getElementById('like-num');
+  if (likeBtn && likeNum) {
+    // 免费计数服务：get 读取，hit 加一并返回新值
+    var LIKE_API = 'https://abacus.jasoncameron.dev';
+    var LIKE_PATH = '/facedes-homework/likes';
+    var LIKE_CACHE = 'faded_like_count';
+    var likeValue = null;
+
+    function saveLike(v) {
+      try { localStorage.setItem(LIKE_CACHE, String(v)); } catch (e) {}
+    }
+    function readLikeCache() {
+      try {
+        var c = localStorage.getItem(LIKE_CACHE);
+        return c === null ? null : Number(c);
+      } catch (e) { return null; }
+    }
+    function showLike(animate) {
+      if (likeValue === null) { likeNum.textContent = '—'; return; }
+      likeNum.textContent = likeValue;
+      if (animate) {
+        likeNum.classList.remove('bump');
+        void likeNum.offsetWidth;
+        likeNum.classList.add('bump');
+      }
+    }
+    function heartFly() {
+      var s = document.createElement('span');
+      s.className = 'heart-float';
+      s.textContent = '\u2665';
+      s.style.left = (22 + Math.random() * 46) + 'px';
+      likeBtn.parentNode.appendChild(s);
+      setTimeout(function () { if (s.parentNode) s.parentNode.removeChild(s); }, 1000);
+    }
+
+    // 先用本地缓存垫一下，再取服务器上的真实累计
+    var cached = readLikeCache();
+    if (cached !== null) { likeValue = cached; showLike(false); }
+
+    if (window.fetch) {
+      fetch(LIKE_API + '/get' + LIKE_PATH)
+        .then(function (r) { return r.json(); })
+        .then(function (d) {
+          var v = Number(d && d.value);
+          if (!isNaN(v)) { likeValue = v; showLike(false); saveLike(v); }
+        })
+        .catch(function () {});
+    }
+
+    likeBtn.addEventListener('click', function () {
+      // 先在本地加一次，保证点了马上有反馈
+      likeValue = (likeValue === null ? 1 : likeValue + 1);
+      showLike(true);
+      heartFly();
+      likeBtn.classList.remove('pop');
+      void likeBtn.offsetWidth;
+      likeBtn.classList.add('pop');
+
+      if (!window.fetch) return;
+      fetch(LIKE_API + '/hit' + LIKE_PATH)
+        .then(function (r) { return r.json(); })
+        .then(function (d) {
+          var v = Number(d && d.value);
+          if (!isNaN(v)) { likeValue = v; showLike(false); saveLike(v); }
+        })
+        .catch(function () {});
+    });
+  }
 })();
