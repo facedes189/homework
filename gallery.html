@@ -56,13 +56,22 @@
   </div>
 
   <nav class="site-nav">
-    <div class="wrap nav-inner">
-      <a href="index.html">首 页</a>
-      <a href="about.html">个人简介</a>
-      <a href="works.html">动画作品</a>
-      <a href="gallery.html" class="active">我的相册</a>
-      <a href="thoughts.html">学习心得</a>
-      <a href="about.html#5">写信给我</a>
+    <div class="wrap nav-row">
+      <div class="nav-inner">
+        <a href="index.html">首 页</a>
+        <a href="about.html">个人简介</a>
+        <a href="works.html">动画作品</a>
+        <a href="gallery.html" class="active">我的相册</a>
+        <a href="thoughts.html">学习心得</a>
+        <a href="about.html#5">写信给我</a>
+      </div>
+      <button class="like-btn" id="like-btn" type="button" aria-label="给这个网站点赞">
+        <svg class="heart" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M12 20.7l-1.3-1.2C6 15.3 3 12.6 3 9.3 3 6.7 5 4.7 7.6 4.7c1.5 0 2.9.7 3.8 1.8l.6.7.6-.7c.9-1.1 2.3-1.8 3.8-1.8C19 4.7 21 6.7 21 9.3c0 3.3-3 6-7.7 10.2L12 20.7z"/>
+        </svg>
+        <span class="like-word">点个赞</span>
+        <b id="like-num">—</b>
+      </button>
     </div>
   </nav>
 
