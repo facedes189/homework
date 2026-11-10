@@ -101,4 +101,39 @@
       if (tip) tip.textContent = '已唤起邮件客户端，如果没有任何反应，可以直接复制邮箱发信给我 : )';
     });
   }
+
+  /* ---------- 6. 首页数字递增 ---------- */
+  var nums = document.querySelectorAll('[data-count]');
+  if (nums.length) {
+    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    var countUp = function (el) {
+      var target = parseInt(el.getAttribute('data-count'), 10) || 0;
+      if (reduce) { el.textContent = target; return; }
+      var startTime = null;
+      var duration = 900;
+      var tick = function (now) {
+        if (!startTime) startTime = now;
+        var p = Math.min((now - startTime) / duration, 1);
+        var eased = 1 - Math.pow(1 - p, 3);
+        el.textContent = Math.round(target * eased);
+        if (p < 1) requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+    };
+
+    if ('IntersectionObserver' in window && !reduce) {
+      var ioNum = new IntersectionObserver(function (entries) {
+        entries.forEach(function (en) {
+          if (en.isIntersecting) {
+            countUp(en.target);
+            ioNum.unobserve(en.target);
+          }
+        });
+      }, { threshold: 0.4 });
+      nums.forEach(function (el) { ioNum.observe(el); });
+    } else {
+      nums.forEach(countUp);
+    }
+  }
 })();
