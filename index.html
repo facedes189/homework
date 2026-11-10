@@ -65,7 +65,6 @@
       <a href="works.html">动画作品</a>
       <a href="gallery.html">我的相册</a>
       <a href="thoughts.html">学习心得</a>
-      <a href="notes.html">课程笔记</a>
       <a href="about.html#5">写信给我</a>
     </div>
   </nav>
@@ -87,7 +86,6 @@
             <a href="works.html">动画作品</a>
             <a href="gallery.html">我的相册</a>
             <a href="thoughts.html">学习心得</a>
-            <a href="notes.html">课程笔记</a>
           </nav>
           <div class="side-note">
             <h4>今日一句</h4>
@@ -100,15 +98,67 @@
       <main class="main">
 
         <section class="hero reveal">
-          <h1>有朋自远方来<br>不亦乐乎！</h1>
-          <p class="welcome">欢迎参观</p>
-          <p class="intro">
-            这个网站放了我的个人简介、四段用 CSS 做的动画、一些随手拍下的照片、
-            几篇学习心得，还有上课记下的六条笔记。慢慢看，不着急。
-          </p>
-          <div class="hero-meta">
-            <span class="tag">网站设计 · 新生实践课</span>
-            <span class="tag warm">6 个页面 · 纯手写 HTML / CSS</span>
+          <div class="hero-text">
+            <p class="eyebrow">Faded · Personal Site</p>
+            <h1>有朋自远方来<br>不亦乐乎！</h1>
+            <p class="welcome">欢迎参观</p>
+            <p class="intro">
+              这个网站放了我的个人简介、四段用 CSS 做的动画、一些随手拍下的照片，
+              还有几篇学习心得。慢慢看，不着急。
+            </p>
+            <div class="hero-meta">
+              <span class="tag">网站设计 · 新生实践课</span>
+              <span class="tag warm">5 个页面 · AI 辅助创作</span>
+            </div>
+          </div>
+
+          <!-- 首屏装饰插画：层叠的网页卡片 -->
+          <div class="hero-art" aria-hidden="true">
+            <svg viewBox="0 0 300 260">
+              <defs>
+                <linearGradient id="hgSky" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0" stop-color="#eaf4ff"/>
+                  <stop offset="1" stop-color="#fdf3e6"/>
+                </linearGradient>
+                <linearGradient id="hgBar" x1="0" y1="0" x2="1" y2="0">
+                  <stop offset="0" stop-color="#0b5fa5"/>
+                  <stop offset="1" stop-color="#3f95d6"/>
+                </linearGradient>
+              </defs>
+              <circle cx="168" cy="122" r="104" fill="url(#hgSky)"/>
+              <circle cx="168" cy="122" r="104" fill="none" stroke="#d9e6f4" stroke-dasharray="3 7"/>
+              <g transform="rotate(-7 150 120)">
+                <rect x="46" y="60" width="176" height="118" rx="12" fill="#ffffff" opacity=".55"/>
+              </g>
+              <g transform="rotate(-3.5 150 120)">
+                <rect x="56" y="70" width="176" height="118" rx="12" fill="#ffffff" opacity=".85"/>
+              </g>
+              <g>
+                <rect x="66" y="80" width="180" height="124" rx="13" fill="#ffffff" stroke="#e3ecf6"/>
+                <rect x="66" y="80" width="180" height="26" rx="13" fill="url(#hgBar)" opacity=".92"/>
+                <rect x="66" y="95" width="180" height="11" fill="url(#hgBar)" opacity=".92"/>
+                <circle cx="82" cy="93" r="3.4" fill="#ffffff" opacity=".9"/>
+                <circle cx="94" cy="93" r="3.4" fill="#ffffff" opacity=".6"/>
+                <circle cx="106" cy="93" r="3.4" fill="#ffffff" opacity=".4"/>
+                <rect x="82" y="122" width="86" height="9" rx="4.5" fill="#0b5fa5" opacity=".72"/>
+                <rect x="82" y="139" width="128" height="6" rx="3" fill="#c9dcee"/>
+                <rect x="82" y="153" width="108" height="6" rx="3" fill="#dbe7f3"/>
+                <rect x="82" y="172" width="42" height="16" rx="8" fill="#e1553c" opacity=".88"/>
+                <rect x="132" y="172" width="42" height="16" rx="8" fill="#eef4fa"/>
+              </g>
+              <g transform="translate(232 44)">
+                <circle cx="0" cy="0" r="20" fill="#f0b429" opacity=".9"/>
+                <circle cx="0" cy="0" r="20" fill="none" stroke="#ffffff" stroke-width="2" opacity=".7"/>
+                <path d="M0-9l2.6 5.6 6.1.8-4.5 4.2 1.2 6-5.4-3-5.4 3 1.2-6-4.5-4.2 6.1-.8z" fill="#ffffff" opacity=".92"/>
+              </g>
+              <g transform="translate(38 202)">
+                <ellipse cx="0" cy="0" rx="17" ry="20" fill="#e1553c" opacity=".85"/>
+                <path d="M0 20l-4 5h8z" fill="#c8452f" opacity=".85"/>
+                <path d="M0 25c4 5-4 8 0 15" stroke="#c2d0dd" stroke-width="1.4" fill="none"/>
+              </g>
+              <circle cx="46" cy="70" r="5" fill="#0b5fa5" opacity=".22"/>
+              <circle cx="252" cy="186" r="7" fill="#0b5fa5" opacity=".14"/>
+            </svg>
           </div>
         </section>
 
@@ -118,15 +168,30 @@
             <span>Overview</span>
           </div>
           <div class="stats">
-            <div class="stat"><b data-count="6">0</b><span>个页面</span></div>
+            <div class="stat"><b data-count="5">0</b><span>个页面</span></div>
             <div class="stat"><b data-count="4">0</b><span>段动画</span></div>
             <div class="stat"><b data-count="6">0</b><span>张照片</span></div>
-            <div class="stat"><b data-count="6">0</b><span>条笔记</span></div>
+            <div class="stat"><b data-count="3">0</b><span>篇心得</span></div>
           </div>
           <p class="site-note">
-            全站手写 HTML / CSS，没有用任何框架；<b>动画与配图由 AI 辅助生成</b>，
+            页面里的动画与配图由 <b>AI 辅助生成</b>，
             代码和文字都自己逐行核对过。
           </p>
+        </section>
+
+        <section class="section reveal">
+          <div class="section-head">
+            <h2>随手拍的</h2>
+            <span>Moments</span>
+          </div>
+          <div class="photo-strip">
+            <a href="gallery.html" aria-label="相册：傍晚的云"><img src="images/sunset.jpg" alt="傍晚的云"></a>
+            <a href="gallery.html" aria-label="相册：雾里的湖面"><img src="images/lake.jpg" alt="雾里的湖面"></a>
+            <a href="gallery.html" aria-label="相册：荷叶池塘"><img src="images/lotus.jpg" alt="荷叶池塘"></a>
+            <a href="gallery.html" aria-label="相册：写满公式的黑板"><img src="images/blackboard.jpg" alt="写满公式的黑板"></a>
+            <a href="gallery.html" aria-label="相册：手里的星星"><img src="images/star.jpg" alt="手里的星星"></a>
+            <a href="gallery.html" aria-label="相册：云层里的光"><img src="images/streak.jpg" alt="云层里的光"></a>
+          </div>
         </section>
 
         <section class="section reveal">
@@ -139,7 +204,6 @@
             <li><a href="works.html">动画作品</a></li>
             <li><a href="gallery.html">我的相册</a></li>
             <li><a href="thoughts.html">学习心得</a></li>
-            <li><a href="notes.html">课程笔记</a></li>
           </ul>
         </section>
 
@@ -159,7 +223,6 @@
         <p class="footer-friends">
           <a href="about.html">关于我</a>
           <a href="gallery.html">相册</a>
-          <a href="notes.html">笔记</a>
           <a href="thoughts.html">心得</a>
         </p>
       </div>
