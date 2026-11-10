@@ -111,7 +111,7 @@ a { color: inherit; text-decoration: none; }
   position: relative;
   height: 168px;
   overflow: hidden;
-  background: var(--white);
+  background: linear-gradient(180deg, #dceafa 0%, #eef6ff 52%, #fdf6ea 100%);
   border-bottom: 1px solid var(--line);
 }
 .banner-inner {
@@ -133,6 +133,48 @@ a { color: inherit; text-decoration: none; }
   margin-right: -9px;
   color: var(--blue-deep);
   text-shadow: 0 2px 0 rgba(255, 255, 255, .9), 0 0 24px rgba(255, 255, 255, .7);
+}
+
+/* 横幅装饰：飘过的云、起伏的山丘与小屋、上升的气球 */
+.cloud {
+  position: absolute;
+  z-index: 1;
+  fill: #ffffff;
+  opacity: .78;
+  animation: drift 26s linear infinite;
+}
+.banner-scene {
+  position: absolute;
+  z-index: 2;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 74px;
+}
+.cloud.c1 { width: 160px; left: -180px; top: 22px; animation-duration: 34s; }
+.cloud.c2 { width: 104px; left: -140px; top: 86px; animation-duration: 44s; animation-delay: -12s; opacity: .6; }
+.cloud.c3 { width: 84px; left: -120px; top: 40px; animation-duration: 52s; animation-delay: -26s; opacity: .6; }
+@keyframes drift {
+  from { transform: translateX(0); }
+  to { transform: translateX(calc(100vw + 220px)); }
+}
+
+.balloon {
+  position: absolute;
+  width: 30px;
+  bottom: -70px;
+  animation: rise 14s linear infinite;
+  opacity: .9;
+}
+.balloon.b1 { left: 12%; animation-duration: 15s; }
+.balloon.b2 { left: 78%; animation-duration: 19s; animation-delay: -6s; width: 24px; }
+.balloon.b3 { left: 58%; animation-duration: 22s; animation-delay: -13s; width: 18px; opacity: .7; }
+@keyframes rise {
+  0% { transform: translateY(0) translateX(0) rotate(-4deg); opacity: 0; }
+  12% { opacity: .9; }
+  50% { transform: translateY(-120px) translateX(14px) rotate(5deg); }
+  100% { transform: translateY(-260px) translateX(-10px) rotate(-3deg); opacity: 0; }
 }
 
 /* ---------------- 导航条 ---------------- */
@@ -883,7 +925,13 @@ a { color: inherit; text-decoration: none; }
   .orbit,
   .stage .balloon2,
   .sweep::after,
+  .cloud,
+  .balloon,
   .typing { animation: none !important; }
+  .cloud.c1 { left: 8%; }
+  .cloud.c2 { left: 28%; top: 104px; }
+  .cloud.c3 { left: 64%; }
+  .balloon { display: none; }
   .typing { width: auto; border-right: 0; }
   .js .reveal { opacity: 1; transform: none; transition: none; }
   .bar i { width: var(--v); }
@@ -922,6 +970,10 @@ a { color: inherit; text-decoration: none; }
   .wrap { width: calc(100% - 28px); }
   .banner { height: 130px; }
   .banner-title { font-size: 17px; letter-spacing: 5px; margin-right: -5px; }
+  .balloon.b1 { left: 6%; width: 22px; }
+  .balloon.b2 { left: 88%; width: 18px; }
+  .balloon.b3 { display: none; }
+  .cloud.c2 { display: none; }
   .hero { padding: 32px 22px 30px; }
   .hero .welcome { font-size: 15px; letter-spacing: 6px; }
   .side { grid-template-columns: 1fr; }
