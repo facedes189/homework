@@ -169,8 +169,8 @@
       var s = document.createElement('span');
       s.className = 'heart-float';
       s.textContent = '\u2665';
-      s.style.left = (22 + Math.random() * 46) + 'px';
-      likeBtn.parentNode.appendChild(s);
+      s.style.left = (8 + Math.random() * (likeBtn.offsetWidth - 22)) + 'px';
+      likeBtn.appendChild(s);
       setTimeout(function () { if (s.parentNode) s.parentNode.removeChild(s); }, 1000);
     }
 
