@@ -1347,3 +1347,155 @@ a { color: inherit; text-decoration: none; }
     border-left: 0;
   }
 }
+
+/* ============================================================
+   装饰层（2026-11-12）
+   只做质感与几何装饰，不新增文案、不加分割线
+   ============================================================ */
+
+/* 1) 全站极淡纸纹：让大块留白有手感 */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  pointer-events: none;
+  opacity: .038;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* 2) 导航条：竖向渐变，顶部一点高光，像上过光的蓝板 */
+.site-nav {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, .16), rgba(255, 255, 255, 0) 48%),
+    linear-gradient(180deg, #1272bd 0%, #0b5fa5 58%, #0a5593 100%);
+  box-shadow: 0 6px 20px rgba(8, 62, 104, .22);
+}
+
+/* 3) 首屏：右侧细同心圆（水纹感）+ 更柔的底色 */
+.hero {
+  background:
+    radial-gradient(560px 340px at 92% 10%, rgba(11, 95, 165, .07), transparent 66%),
+    radial-gradient(420px 260px at 100% 100%, rgba(225, 85, 60, .05), transparent 72%),
+    linear-gradient(150deg, #ffffff 0%, #fdfcf9 58%, #f6faff 100%);
+  box-shadow: 0 18px 46px rgba(64, 48, 32, .07);
+}
+.hero::after {
+  content: "";
+  position: absolute;
+  right: -86px;
+  top: 50%;
+  width: 380px;
+  height: 380px;
+  margin-top: -190px;
+  border-radius: 50%;
+  background: repeating-radial-gradient(circle at 50% 50%,
+    rgba(11, 95, 165, .17) 0 1px,
+    transparent 1px 38px);
+  -webkit-mask-image: radial-gradient(closest-side, #000 24%, rgba(0, 0, 0, .5) 66%, transparent 100%);
+  mask-image: radial-gradient(closest-side, #000 24%, rgba(0, 0, 0, .5) 66%, transparent 100%);
+  pointer-events: none;
+}
+
+/* 4) 卡片：一层内高光 + 暖调阴影，边缘不再发灰 */
+.card,
+.info-block,
+.post,
+.form-card,
+.contact-item,
+.stat,
+.news {
+  box-shadow: 0 1px 0 rgba(255, 255, 255, .95) inset, 0 8px 22px rgba(64, 48, 32, .06);
+}
+
+/* 5) 数据卡数字加深一档，浅底上更立得住 */
+@supports ((-webkit-background-clip: text) or (background-clip: text)) {
+  .stat b { background-image: linear-gradient(155deg, #0a5596, #2e86c9); }
+  .stat:nth-child(even) b { background-image: linear-gradient(155deg, #c53d24, #e5775f); }
+}
+
+/* 6) 照片带：白色相纸边框，像贴上去的几张照片 */
+.photo-strip a {
+  padding: 5px;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 15px;
+  box-shadow: 0 8px 20px rgba(64, 48, 32, .10);
+}
+.photo-strip img { border-radius: 10px; }
+
+/* 7) 页脚：深蓝底 + 顶部一团柔光 */
+.site-footer {
+  background:
+    radial-gradient(720px 200px at 50% 0%, rgba(18, 114, 189, .34), transparent 74%),
+    radial-gradient(520px 160px at 92% 120%, rgba(225, 85, 60, .16), transparent 76%),
+    linear-gradient(180deg, #15161b, #0c0d10);
+}
+
+/* 8) 跳转列表：悬停时淡淡铺一层蓝，配右侧箭头右移 */
+.link-list a {
+  transition: background .26s ease, translate .22s ease;
+}
+.link-list a:hover {
+  background: linear-gradient(90deg, rgba(11, 95, 165, .055), rgba(11, 95, 165, 0) 72%);
+}
+
+@media (max-width: 700px) {
+  .hero::after { right: -130px; opacity: .8; }
+}
+
+/* 9) 侧栏蓝色头像区：加一层细点阵与光晕，不再是整块平色 */
+.side-head {
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(180px 120px at 100% 0%, rgba(255, 255, 255, .18), transparent 70%),
+    radial-gradient(160px 120px at 0% 100%, rgba(225, 85, 60, .22), transparent 72%),
+    linear-gradient(140deg, #0f6cb2, var(--blue-deep));
+}
+.side-head::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(rgba(255, 255, 255, .5) 1px, transparent 1px);
+  background-size: 13px 13px;
+  -webkit-mask-image: radial-gradient(160px 120px at 88% 6%, #000, transparent 76%);
+  mask-image: radial-gradient(160px 120px at 88% 6%, #000, transparent 76%);
+  opacity: .5;
+  pointer-events: none;
+}
+.side-head > * { position: relative; z-index: 1; }
+
+/* 10) 横幅：右上方一轮淡太阳，天空有了方向感 */
+.banner {
+  background:
+    radial-gradient(circle 30px at 86% 30%, rgba(255, 209, 141, .92) 0 46%, rgba(255, 209, 141, .34) 66%, rgba(255, 209, 141, 0) 80%),
+    radial-gradient(circle 120px at 86% 30%, rgba(255, 216, 156, .30), rgba(255, 216, 156, 0) 76%),
+    linear-gradient(180deg, #dceafa 0%, #eef6ff 52%, #fdf6ea 100%);
+}
+
+/* 11) 简介页等信息卡：悬停时轻轻抬起，和首页卡片一致 */
+.info-block,
+.post {
+  transition: translate .3s cubic-bezier(.2, .8, .3, 1), box-shadow .3s ease;
+}
+.info-block:hover,
+.post:hover {
+  translate: 0 -3px;
+  box-shadow: 0 16px 34px rgba(64, 48, 32, .11);
+}
+
+/* 12) 侧栏「今日一句」：淡淡的引号做底纹，像手写便条 */
+.side-note { position: relative; overflow: hidden; }
+.side-note::before {
+  content: "\201C";
+  position: absolute;
+  right: 12px;
+  top: -10px;
+  font-family: var(--serif);
+  font-size: 62px;
+  line-height: 1;
+  color: rgba(225, 85, 60, .16);
+  pointer-events: none;
+}
+.side-note h4, .side-note p { position: relative; }
