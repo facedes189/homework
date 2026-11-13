@@ -1278,6 +1278,8 @@ a { color: inherit; text-decoration: none; }
   touch-action: manipulation;
   user-select: none;
   -webkit-user-select: none;
+  /* 独立合成层：数字变化只重绘这一小块，不会把整条导航一起刷一遍 */
+  will-change: transform;
   transition: background .22s ease, translate .22s ease, box-shadow .22s ease;
 }
 .like-btn:hover {
@@ -1285,23 +1287,21 @@ a { color: inherit; text-decoration: none; }
   translate: 0 -2px;
   box-shadow: 0 7px 16px rgba(4, 44, 78, .28);
 }
-.like-btn:active { translate: 0 0; }
+/* 按下时不改任何样式：连点时按钮完全静止，只有数字在变 */
 .like-btn .heart {
   width: 14px;
   height: 14px;
   fill: #ffcec2;
   display: block;
-}
-.like-btn.pop .heart { animation: heartPop .5s cubic-bezier(.2, .8, .3, 1); }
-@keyframes heartPop {
-  0% { transform: scale(1); }
-  38% { transform: scale(1.45); }
-  100% { transform: scale(1); }
+  transform-origin: 50% 55%;
+  will-change: transform;
 }
 .like-btn .like-word { opacity: .92; }
 .like-btn b {
   display: inline-block;
-  min-width: 1ch;
+  min-width: 3.1ch;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
   margin-left: 2px;
   padding-left: 8px;
   border-left: 1px solid rgba(255, 255, 255, .34);
@@ -1310,28 +1310,6 @@ a { color: inherit; text-decoration: none; }
   letter-spacing: .5px;
   color: #fff;
   text-align: left;
-}
-.like-btn b.bump { animation: numBump .45s cubic-bezier(.2, .8, .3, 1); }
-@keyframes numBump {
-  0% { transform: translateY(0) scale(1); }
-  45% { transform: translateY(-3px) scale(1.18); }
-  100% { transform: translateY(0) scale(1); }
-}
-
-/* 点击时从按钮里升起的小心 */
-.heart-float {
-  position: absolute;
-  bottom: 6px;
-  font-size: 12px;
-  line-height: 1;
-  color: #ffd7cc;
-  pointer-events: none;
-  animation: heartRise .9s ease-out forwards;
-}
-@keyframes heartRise {
-  0% { opacity: 0; transform: translateY(4px) scale(.7) rotate(-8deg); }
-  20% { opacity: .95; }
-  100% { opacity: 0; transform: translateY(-30px) scale(1.05) rotate(10deg); }
 }
 
 @media (max-width: 700px) {
