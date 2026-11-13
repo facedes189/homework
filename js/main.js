@@ -142,9 +142,9 @@
   var likeNum = document.getElementById('like-num');
   if (likeBtn && likeNum) {
     var LIKE_API = 'https://abacus.jasoncameron.dev';
-    var LIKE_PATH = '/facedes-homework/likes';
-    var LIKE_CACHE = 'faded_like_count';   // 上一次显示过的数字
-    var LIKE_QUEUE = 'faded_like_queue';   // 还没同步出去的点击数
+    var LIKE_PATH = '/facedes-homework/likes2';
+    var LIKE_CACHE = 'faded_like_count_v2';   // 上一次显示过的数字（换计数器时同步换名）
+    var LIKE_QUEUE = 'faded_like_queue_v2';   // 还没同步出去的点击数
 
     var shown = null;     // 屏幕上显示的数字（只增不减）
     var server = null;    // 服务器已确认的数字
