@@ -152,10 +152,7 @@
     var busy = false;     // 是否有请求正在飞
     var nextAt = 0;       // 下一次允许发请求的时间
     var timer = null;
-    var GAP = 420;        // 每次请求间隔
-    var sent = [];        // 本标签页最近发出的请求时间
-    var WINDOW = 10000;   // 服务端限流窗口
-    var QUOTA = 20;       // 一个窗口内最多自己发几次（留足余量，基本不撞 429）
+    var GAP = 340;        // 请求间隔 ≈ 服务器容量（30 次/10 秒），只影响同步节奏，不影响计数
 
     function load(key) {
       try {
@@ -216,22 +213,14 @@
       if (timer) return;
       timer = setTimeout(function () { timer = null; flush(); }, ms);
     }
-    function quotaWait() {
-      var now = Date.now();
-      while (sent.length && now - sent[0] > WINDOW) sent.shift();
-      if (sent.length < QUOTA) return 0;
-      return sent[0] + WINDOW - now + 30;
-    }
     function flush() {
       if (busy || !window.fetch) return;
       if (pending <= 0) return;
-      var wait = Math.max(nextAt - Date.now(), quotaWait());
+      var wait = nextAt - Date.now();
       if (wait > 0) { schedule(wait); return; }
 
       busy = true;
       nextAt = Date.now() + GAP;
-      sent.push(Date.now());
-      if (sent.length > QUOTA * 2) sent.splice(0, sent.length - QUOTA);
       // 发出去就先从队列扣掉：万一页面被关掉，这一下也已经交给服务器了
       pending = Math.max(0, pending - 1);
       queueWrite();
@@ -286,7 +275,23 @@
         .catch(function () { if (pending > 0) schedule(0); });
     }
 
-    likeBtn.addEventListener('click', function () {
+    /* ---- 防机器人刷赞：只拦「程序自动点击」，不拦人手（连点器也算人手） ----
+       检查三层，全部静默忽略，绝不打扰真人：
+       ① isTrusted：脚本里 btn.click() / dispatchEvent 合成的事件必为 false
+       ② navigator.webdriver：Puppeteer / Playwright / Selenium 等自动化浏览器必为 true
+       ③ userAgent：无头浏览器（HeadlessChrome 等）和常见自动化框架的特征串
+       ④ document.hasFocus()：真人点鼠标时窗口必然已获得焦点 */
+    var isBot = navigator.webdriver ||
+      /headless|puppeteer|playwright|phantomjs|selenium|webdriver/i.test(navigator.userAgent);
+    function looksHuman(e) {
+      if (isBot) return false;
+      if (!e || e.isTrusted !== true) return false;
+      try { if (!document.hasFocus()) return false; } catch (err) {}
+      return true;
+    }
+
+    likeBtn.addEventListener('click', function (e) {
+      if (!looksHuman(e)) return;   // AI / 脚本点的，一律不记
       // 先记账（本地 +1、入队、触发同步），动画放在最后：
       // 就算动画那一行出问题，也绝不会漏掉这一下
       shown = (shown === null ? 1 : shown + 1);
