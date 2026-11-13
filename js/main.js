@@ -141,70 +141,171 @@
   var likeBtn = document.getElementById('like-btn');
   var likeNum = document.getElementById('like-num');
   if (likeBtn && likeNum) {
-    // 免费计数服务：get 读取，hit 加一并返回新值
     var LIKE_API = 'https://abacus.jasoncameron.dev';
     var LIKE_PATH = '/facedes-homework/likes';
-    var LIKE_CACHE = 'faded_like_count';
-    var likeValue = null;
+    var LIKE_CACHE = 'faded_like_count';   // 上一次显示过的数字
+    var LIKE_QUEUE = 'faded_like_queue';   // 还没同步出去的点击数
 
-    function saveLike(v) {
-      try { localStorage.setItem(LIKE_CACHE, String(v)); } catch (e) {}
+    var shown = null;     // 屏幕上显示的数字（只增不减）
+    var server = null;    // 服务器已确认的数字
+    var pending = 0;      // 排队等着同步的点击数
+    var busy = false;     // 是否有请求正在飞
+    var nextAt = 0;       // 下一次允许发请求的时间（按 30 次 / 10 秒限流排队）
+    var timer = null;
+    var GAP = 420;        // 每次请求间隔
+    var sent = [];        // 本标签页最近发出的请求时间，用来自己卡住 30 次 / 10 秒的上限
+    var WINDOW = 10000;   // 服务端限流窗口
+    var QUOTA = 20;       // 一个窗口内最多自己发几次（留足余量，基本不撞 429）
+
+    function save(key, v) {
+      try { localStorage.setItem(key, String(v)); } catch (e) {}
     }
-    function readLikeCache() {
+    function load(key) {
       try {
-        var c = localStorage.getItem(LIKE_CACHE);
-        return c === null ? null : Number(c);
+        var v = localStorage.getItem(key);
+        return v === null ? null : Number(v);
       } catch (e) { return null; }
     }
-    function showLike(animate) {
-      if (likeValue === null) { likeNum.textContent = '—'; return; }
-      likeNum.textContent = likeValue;
-      if (animate) {
-        likeNum.classList.remove('bump');
-        void likeNum.offsetWidth;
-        likeNum.classList.add('bump');
-      }
-    }
-    function heartFly() {
-      var s = document.createElement('span');
-      s.className = 'heart-float';
-      s.textContent = '\u2665';
-      s.style.left = (8 + Math.random() * (likeBtn.offsetWidth - 22)) + 'px';
-      likeBtn.appendChild(s);
-      setTimeout(function () { if (s.parentNode) s.parentNode.removeChild(s); }, 1000);
+
+    function render() {
+      if (shown === null) { likeNum.textContent = '\u2014'; return; }
+      if (likeNum.textContent !== String(shown)) likeNum.textContent = shown;
     }
 
-    // 先用本地缓存垫一下，再取服务器上的真实累计
-    var cached = readLikeCache();
-    if (cached !== null) { likeValue = cached; showLike(false); }
-
-    if (window.fetch) {
-      fetch(LIKE_API + '/get' + LIKE_PATH)
-        .then(function (r) { return r.json(); })
-        .then(function (d) {
-          var v = Number(d && d.value);
-          if (!isNaN(v)) { likeValue = v; showLike(false); saveLike(v); }
-        })
-        .catch(function () {});
-    }
-
-    likeBtn.addEventListener('click', function () {
-      // 先在本地加一次，保证点了马上有反馈
-      likeValue = (likeValue === null ? 1 : likeValue + 1);
-      showLike(true);
+    // 动画按节流播放，避免连点时每一击都强制重排，越点越卡
+    var lastFx = 0;
+    var fxTimer = null;
+    function playFx() {
       heartFly();
+      likeNum.classList.remove('bump');
+      void likeNum.offsetWidth;
+      likeNum.classList.add('bump');
       likeBtn.classList.remove('pop');
       void likeBtn.offsetWidth;
       likeBtn.classList.add('pop');
+    }
+    function fx() {
+      var now = Date.now();
+      var wait = 140 - (now - lastFx);
+      if (wait <= 0) { lastFx = now; playFx(); return; }
+      if (fxTimer) return;
+      fxTimer = setTimeout(function () { fxTimer = null; lastFx = Date.now(); playFx(); }, wait);
+    }
 
-      if (!window.fetch) return;
-      fetch(LIKE_API + '/hit' + LIKE_PATH)
+    var hearts = 0;
+    function heartFly() {
+      if (hearts > 4) return;   // 同时最多几粒，防止连点时节点堆积
+      var s = document.createElement('span');
+      s.className = 'heart-float';
+      s.textContent = '\u2665';
+      s.style.left = (8 + Math.random() * Math.max(6, likeBtn.offsetWidth - 22)) + 'px';
+      likeBtn.appendChild(s);
+      hearts++;
+      setTimeout(function () {
+        hearts--;
+        if (s.parentNode) s.parentNode.removeChild(s);
+      }, 950);
+    }
+
+    /* 排队同步：一次只飞一个请求，按节奏发，429 就退让重试，绝不丢点击 */
+    function schedule(ms) {
+      if (timer) return;
+      timer = setTimeout(function () { timer = null; flush(); }, ms);
+    }
+    // 自己数着窗口用量，提前排队，不等服务器回 429 才退让
+    function quotaWait() {
+      var now = Date.now();
+      while (sent.length && now - sent[0] > WINDOW) sent.shift();
+      if (sent.length < QUOTA) return 0;
+      return sent[0] + WINDOW - now + 30;
+    }
+
+    function flush() {
+      if (busy || !window.fetch) return;
+      if (pending <= 0) return;
+      var wait = Math.max(nextAt - Date.now(), quotaWait());
+      if (wait > 0) { schedule(wait); return; }
+
+      busy = true;
+      nextAt = Date.now() + GAP;
+      sent.push(Date.now());
+      if (sent.length > QUOTA * 2) sent.splice(0, sent.length - QUOTA);
+      // 发出去就先从队列里扣掉：万一页面被关掉，这一下也已经交给服务器了，
+      // 下次打开不会重复补发（失败的话在 catch 里退回队列）
+      pending = Math.max(0, pending - 1);
+      pendingSave();
+      fetch(LIKE_API + '/hit' + LIKE_PATH, { cache: 'no-store', keepalive: true })
+        .then(function (r) {
+          if (r.status === 429) {
+            var ra = Number(r.headers.get('Retry-After'));
+            nextAt = Date.now() + (ra > 0 ? Math.min(ra + 300, 6000) : 1200);
+            throw new Error('rate');
+          }
+          if (!r.ok) throw new Error('http ' + r.status);
+          return r.json();
+        })
+        .then(function (d) {
+          var v = Number(d && d.value);
+          if (isNaN(v)) throw new Error('bad');
+          server = v;
+          pendingSave();
+          var est = v + pending;
+          if (shown === null || est > shown) { shown = est; save(LIKE_CACHE, shown); }
+          render();
+        })
+        .catch(function () {
+          // 没成功就退回队列，稍后重试；退让久一点，别把限流撞得更狠
+          pending++;
+          pendingSave();
+          nextAt = Math.max(nextAt, Date.now() + 2000);
+        })
+        .then(function () {
+          busy = false;
+          if (pending > 0) schedule(Math.max(0, nextAt - Date.now()));
+        });
+    }
+    function pendingSave() { save(LIKE_QUEUE, pending); }
+
+    // 先用上次的缓存垫一下，再取服务器上的真实累计
+    var cached = load(LIKE_CACHE);
+    var queued = load(LIKE_QUEUE);
+    if (queued > 0) pending = Math.min(queued, 999);
+    if (cached !== null) { shown = cached; render(); }
+
+    if (window.fetch) {
+      fetch(LIKE_API + '/get' + LIKE_PATH, { cache: 'no-store' })
         .then(function (r) { return r.json(); })
         .then(function (d) {
           var v = Number(d && d.value);
-          if (!isNaN(v)) { likeValue = v; showLike(false); saveLike(v); }
+          if (isNaN(v)) return;
+          server = v;
+          var est = v + pending;
+          if (shown === null || est > shown) { shown = est; save(LIKE_CACHE, shown); }
+          render();
+          if (pending > 0) schedule(0);
         })
-        .catch(function () {});
+        .catch(function () { if (pending > 0) schedule(0); });
+    }
+
+    likeBtn.addEventListener('click', function () {
+      // 本地立刻 +1，屏幕上是即时反应，同步交给后台排队
+      shown = (shown === null ? 1 : shown + 1);
+      pending++;
+      pendingSave();
+      render();
+      fx();
+      schedule(0);
+    });
+
+    // 离开页面时把队列里的补齐（浏览器允许的范围内尽量发出去）
+    window.addEventListener('pagehide', function () {
+      if (!window.fetch || pending <= 0) return;
+      var n = Math.min(pending, 5);
+      pending = Math.max(0, pending - n);
+      pendingSave();
+      for (var i = 0; i < n; i++) {
+        fetch(LIKE_API + '/hit' + LIKE_PATH, { cache: 'no-store', keepalive: true });
+      }
     });
   }
 })();
