@@ -267,23 +267,34 @@
     // 先用上次的缓存垫一下，再取服务器上的真实累计
     var cached = load(LIKE_CACHE);
     var queued = load(LIKE_QUEUE);
+    var SEED = 200;                 // 计数器的起始基数：万一服务器暂时取不到，先显示它，别显示「—」
     if (queued > 0) pending = Math.min(queued, 999);
     if (cached !== null) { shown = cached; render(); }
 
-    if (window.fetch) {
+    // 取服务器数值：失败自动重试 3 次（服务偶尔会抽风），仍失败就用缓存/基数兜底
+    function pullServer(tryNo) {
+      if (!window.fetch) return;
       fetch(LIKE_API + '/get' + LIKE_PATH, { cache: 'no-store' })
         .then(function (r) { return r.json(); })
         .then(function (d) {
           var v = Number(d && d.value);
-          if (isNaN(v)) return;
+          if (isNaN(v)) throw new Error('bad');
           server = v;
           var est = v + pending;
           if (shown === null || est > shown) { shown = est; render(); }
           queueWrite();
           if (pending > 0) schedule(0);
         })
-        .catch(function () { if (pending > 0) schedule(0); });
+        .catch(function () {
+          if (tryNo < 3) {
+            setTimeout(function () { pullServer(tryNo + 1); }, 800 * tryNo);
+            return;
+          }
+          if (shown === null) { shown = SEED; render(); queueWrite(); }   // 兜底，别让数字位空着
+          if (pending > 0) schedule(0);
+        });
     }
+    pullServer(1);
 
     /* ---- 防机器人刷赞：只拦「程序自动点击」，不拦人手（连点器也算人手） ----
        检查三层，全部静默忽略，绝不打扰真人：
