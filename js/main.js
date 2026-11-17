@@ -1,7 +1,7 @@
 /* 个人网页 · 交互脚本
    1) 滚动进入视口时淡入
    2) 技能条进入视口时生长
-   3) 相册灯箱
+   3) 相册灯箱（翻页 / 缩略图 / 双击放大 / 滑动切换）
    4) 页脚日期
    5) 留言表单交给邮件客户端
 */
@@ -38,41 +38,194 @@
     fillBars();
   }
 
-  /* ---------- 3. 相册灯箱 ---------- */
-  var shots = document.querySelectorAll('.shot');
+  /* ---------- 3. 相册灯箱：翻页、缩略图、双击放大、滑动切换 ---------- */
+  var shots = [].slice.call(document.querySelectorAll('.shot'));
   if (shots.length) {
+    var items = shots.map(function (shot) {
+      var im = shot.querySelector('img');
+      return {
+        src: im.getAttribute('src'),
+        alt: im.getAttribute('alt') || '',
+        title: shot.getAttribute('data-title') || im.getAttribute('alt') || ''
+      };
+    });
+
     var box = document.createElement('div');
     box.className = 'lightbox';
+    box.setAttribute('role', 'dialog');
+    box.setAttribute('aria-modal', 'true');
+    box.setAttribute('aria-label', '照片查看');
     box.innerHTML =
       '<button class="close" type="button" aria-label="关闭">&times;</button>' +
-      '<div><img alt=""></div>';
+      '<div class="lb-stage">' +
+        '<button class="lb-nav lb-prev" type="button" aria-label="上一张">' +
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" ' +
+          'stroke-linecap="round" stroke-linejoin="round"><path d="M14.6 5.4 8 12l6.6 6.6"/></svg>' +
+        '</button>' +
+        '<figure class="lb-figure">' +
+          '<img class="lb-img" alt="">' +
+          '<figcaption class="lb-cap"><span class="lb-title"></span><span class="lb-count"></span></figcaption>' +
+        '</figure>' +
+        '<button class="lb-nav lb-next" type="button" aria-label="下一张">' +
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" ' +
+          'stroke-linecap="round" stroke-linejoin="round"><path d="M9.4 5.4 16 12l-6.6 6.6"/></svg>' +
+        '</button>' +
+        '<div class="lb-thumbs"></div>' +
+      '</div>';
     document.body.appendChild(box);
 
-    var boxImg = box.querySelector('img');
+    var lbImg = box.querySelector('.lb-img');
+    var lbTitle = box.querySelector('.lb-title');
+    var lbCount = box.querySelector('.lb-count');
+    var thumbWrap = box.querySelector('.lb-thumbs');
+    var cur = 0;
+    var zoom = 1;
+    var tx = 0;
+    var ty = 0;
+    var lastFocus = null;
 
-    function openBox(src, alt) {
-      boxImg.src = src;
-      boxImg.alt = alt || '';
+    items.forEach(function (it, i) {
+      var btn = document.createElement('button');
+      btn.className = 'lb-thumb';
+      btn.type = 'button';
+      btn.setAttribute('aria-label', '第 ' + (i + 1) + ' 张：' + it.title);
+      btn.innerHTML = '<img src="' + it.src + '" alt="">';
+      btn.addEventListener('click', function () { show(i); });
+      thumbWrap.appendChild(btn);
+    });
+    var thumbEls = [].slice.call(thumbWrap.children);
+
+    // 缩放与平移：transform 以中心为原点，位移按缩放比例反算，点哪儿放大哪儿
+    function paintZoom() {
+      lbImg.style.transform = 'translate3d(' + tx + 'px,' + ty + 'px,0) scale(' + zoom + ')';
+      lbImg.classList.toggle('zoomed', zoom > 1);
+    }
+    function clampPan() {
+      var w = lbImg.offsetWidth;
+      var h = lbImg.offsetHeight;
+      var mx = w * (zoom - 1) / 2;
+      var my = h * (zoom - 1) / 2;
+      tx = Math.max(-mx, Math.min(mx, tx));
+      ty = Math.max(-my, Math.min(my, ty));
+    }
+    function resetZoom() {
+      zoom = 1;
+      tx = 0;
+      ty = 0;
+      paintZoom();
+    }
+
+    function show(i) {
+      cur = (i + items.length) % items.length;
+      var it = items[cur];
+      lbImg.src = it.src;
+      lbImg.alt = it.alt;
+      lbTitle.textContent = it.title;
+      lbCount.textContent = (cur + 1) + ' / ' + items.length;
+      thumbEls.forEach(function (el, k) { el.classList.toggle('on', k === cur); });
+      resetZoom();
+      // 顺手把左右两张也拉下来，翻页时不用等
+      [-1, 1].forEach(function (d) {
+        var pre = new Image();
+        pre.src = items[(cur + d + items.length) % items.length].src;
+      });
+    }
+    function step(d) { show(cur + d); }
+
+    function openBox(i, from) {
+      lastFocus = from || null;
+      show(i);
       box.classList.add('open');
       document.body.style.overflow = 'hidden';
+      setTimeout(function () { box.querySelector('.close').focus(); }, 40);
     }
     function closeBox() {
+      if (!box.classList.contains('open')) return;
       box.classList.remove('open');
       document.body.style.overflow = '';
+      resetZoom();
+      if (lastFocus && lastFocus.focus) lastFocus.focus();
     }
 
-    shots.forEach(function (shot) {
-      shot.addEventListener('click', function () {
-        var img = shot.querySelector('img');
-        openBox(img.getAttribute('src'), img.getAttribute('alt'));
+    shots.forEach(function (shot, i) {
+      shot.setAttribute('role', 'button');
+      shot.setAttribute('tabindex', '0');
+      shot.setAttribute('aria-label', '放大查看：' + items[i].title);
+      shot.addEventListener('click', function () { openBox(i, shot); });
+      shot.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          openBox(i, shot);
+        }
       });
     });
+
+    box.querySelector('.lb-prev').addEventListener('click', function () { step(-1); });
+    box.querySelector('.lb-next').addEventListener('click', function () { step(1); });
+
+    // 点背景或关闭键退出，点图片本身不退出
     box.addEventListener('click', function (e) {
-      if (e.target === box || e.target.classList.contains('close')) closeBox();
+      if (e.target === box || e.target.classList.contains('lb-stage')) closeBox();
+      else if (e.target.classList.contains('close')) closeBox();
     });
+
+    // 双击在「整图」和「2 倍」之间切换
+    lbImg.addEventListener('dblclick', function (e) {
+      if (zoom > 1) { resetZoom(); return; }
+      var r = lbImg.getBoundingClientRect();
+      var ox = (e.clientX - r.left) / r.width - .5;
+      var oy = (e.clientY - r.top) / r.height - .5;
+      zoom = 2.2;
+      tx = ox * r.width * (1 - zoom);
+      ty = oy * r.height * (1 - zoom);
+      clampPan();
+      paintZoom();
+    });
+
+    // 放大后按住拖动看细节
+    var drag = null;
+    lbImg.addEventListener('pointerdown', function (e) {
+      if (zoom === 1) return;
+      drag = { x: e.clientX, y: e.clientY, tx: tx, ty: ty };
+      lbImg.classList.add('dragging');
+      if (lbImg.setPointerCapture) lbImg.setPointerCapture(e.pointerId);
+    });
+    lbImg.addEventListener('pointermove', function (e) {
+      if (!drag) return;
+      tx = drag.tx + (e.clientX - drag.x);
+      ty = drag.ty + (e.clientY - drag.y);
+      clampPan();
+      paintZoom();
+    });
+    function endDrag() {
+      drag = null;
+      lbImg.classList.remove('dragging');
+    }
+    lbImg.addEventListener('pointerup', endDrag);
+    lbImg.addEventListener('pointercancel', endDrag);
+
+    // 手机上左右滑
+    var touchStart = null;
+    box.addEventListener('touchstart', function (e) {
+      if (e.touches.length !== 1 || zoom > 1) return;
+      touchStart = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    }, { passive: true });
+    box.addEventListener('touchend', function (e) {
+      if (!touchStart) return;
+      var t = e.changedTouches[0];
+      var dx = t.clientX - touchStart.x;
+      var dy = t.clientY - touchStart.y;
+      touchStart = null;
+      if (Math.abs(dx) > 46 && Math.abs(dx) > Math.abs(dy) * 1.4) step(dx < 0 ? 1 : -1);
+    }, { passive: true });
+
     document.addEventListener('keydown', function (e) {
+      if (!box.classList.contains('open')) return;
       if (e.key === 'Escape') closeBox();
+      else if (e.key === 'ArrowLeft') step(-1);
+      else if (e.key === 'ArrowRight') step(1);
     });
+    window.addEventListener('resize', function () { if (zoom > 1) resetZoom(); });
   }
 
   /* ---------- 4. 页脚日期 ---------- */
