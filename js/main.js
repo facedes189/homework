@@ -438,4 +438,32 @@
       syncTheme();
     });
   }
+
+  /* ---------- 10. 首页按时段问候 ---------- */
+  var clockEl = document.getElementById('greet-clock');
+  if (clockEl) {
+    var partOf = function (h) {
+      if (h < 5) return 'night';
+      if (h < 9) return 'dawn';
+      if (h < 12) return 'morning';
+      if (h < 17) return 'afternoon';
+      if (h < 20) return 'dusk';
+      return 'night';
+    };
+    var pad2 = function (n) { return (n < 10 ? '0' : '') + n; };
+    var paintClock = function () {
+      var now = new Date();
+      clockEl.textContent = pad2(now.getHours()) + ':' + pad2(now.getMinutes());
+      var part = partOf(now.getHours());
+      if (document.documentElement.getAttribute('data-daypart') !== part) {
+        document.documentElement.setAttribute('data-daypart', part);
+      }
+    };
+    paintClock();
+    // 20 秒对一次表：页面一直开着跨过整点、或者跨过时段边界，问候会自己换过来
+    setInterval(paintClock, 20000);
+    document.addEventListener('visibilitychange', function () {
+      if (!document.hidden) paintClock();
+    });
+  }
 })();

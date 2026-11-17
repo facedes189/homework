@@ -2240,3 +2240,166 @@ html[data-theme="dark"] .err-art .art-hill:nth-of-type(2) { fill: #14212e; }
   -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 9%, #000 91%, transparent 100%);
   mask-image: linear-gradient(90deg, transparent 0%, #000 9%, #000 91%, transparent 100%);
 }
+
+/* ============================================================
+   19. 首页按时段问候
+   天色分五段：清晨 5–8 / 上午 9–11 / 午后 12–16 / 傍晚 17–19 / 深夜 20–4
+   <head> 里先按本地时间写 html[data-daypart]，所以首屏不会闪错问候。
+   ============================================================ */
+
+/* 微光参数：换时段只换这几个变量，hero 的背景层自动跟着变 */
+html {
+  --glow-a: rgba(255, 205, 96, .16);
+  --glow-b: rgba(255, 232, 176, .08);
+  --glow-x: 80%;
+  --glow-r: 560px;
+}
+html[data-daypart="dawn"] {
+  --glow-a: rgba(255, 178, 122, .26);
+  --glow-b: rgba(255, 216, 174, .12);
+  --glow-x: 14%;
+  --glow-r: 660px;
+}
+html[data-daypart="morning"] {
+  --glow-a: rgba(255, 208, 104, .24);
+  --glow-b: rgba(255, 236, 182, .11);
+  --glow-x: 76%;
+  --glow-r: 580px;
+}
+html[data-daypart="afternoon"] {
+  --glow-a: rgba(126, 192, 240, .22);
+  --glow-b: rgba(216, 238, 252, .12);
+  --glow-x: 92%;
+  --glow-r: 540px;
+}
+html[data-daypart="dusk"] {
+  --glow-a: rgba(255, 141, 96, .28);
+  --glow-b: rgba(255, 198, 142, .13);
+  --glow-x: 10%;
+  --glow-r: 680px;
+}
+html[data-daypart="night"] {
+  --glow-a: rgba(124, 152, 226, .2);
+  --glow-b: rgba(96, 124, 196, .1);
+  --glow-x: 82%;
+  --glow-r: 620px;
+}
+
+/* 首屏多一层天色光晕，压在原来的两团柔光下面 */
+.hero {
+  background:
+    radial-gradient(var(--glow-r) 330px at var(--glow-x) -8%, var(--glow-a), transparent 68%),
+    radial-gradient(var(--glow-r) 260px at var(--glow-x) 4%, var(--glow-b), transparent 70%),
+    radial-gradient(400px 230px at 90% 6%, rgba(11, 95, 165, .07), transparent 70%),
+    radial-gradient(340px 200px at 8% 96%, rgba(225, 85, 60, .06), transparent 72%),
+    linear-gradient(150deg, #ffffff 0%, #fdfbf7 56%, #f4f9ff 100%);
+}
+
+/* 问候行 */
+.greet {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: -4px 0 13px;
+  font-size: 12.5px;
+  line-height: 1.2;
+  letter-spacing: .06em;
+  color: var(--ink-3);
+  min-height: 22px;
+}
+.greet-ico {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 21px;
+  height: 21px;
+}
+.greet-ico .gi { display: none; width: 20px; height: 20px; }
+html[data-daypart="dawn"] .greet-ico .gi-dawn,
+html[data-daypart="morning"] .greet-ico .gi-sun,
+html[data-daypart="afternoon"] .greet-ico .gi-sun,
+html[data-daypart="dusk"] .greet-ico .gi-dusk,
+html[data-daypart="night"] .greet-ico .gi-moon { display: block; }
+html:not([data-daypart]) .greet-ico .gi-sun { display: block; }
+
+.gi-dawn { color: #e2a05c; }
+.gi-sun { color: #dfa626; }
+.gi-dusk { color: #d96a48; }
+.gi-moon { color: #7488bd; }
+
+/* 五套文案：只显示与当前时段对应的那一行 */
+.greet-say { display: flex; align-items: baseline; min-width: 0; }
+.greet-line { display: none; align-items: baseline; gap: 9px; }
+html[data-daypart="dawn"] .greet-line[data-part="dawn"],
+html[data-daypart="morning"] .greet-line[data-part="morning"],
+html[data-daypart="afternoon"] .greet-line[data-part="afternoon"],
+html[data-daypart="dusk"] .greet-line[data-part="dusk"],
+html[data-daypart="night"] .greet-line[data-part="night"],
+html:not([data-daypart]) .greet-line[data-part="any"] { display: inline-flex; }
+
+.greet-line b {
+  font-weight: 600;
+  font-size: 13.5px;
+  letter-spacing: .14em;
+  color: var(--ink-2);
+}
+.gl-note { letter-spacing: .05em; }
+
+/* 时钟：等宽数字，跳分的时候不左右晃 */
+.greet-clock {
+  flex: none;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: .12em;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-3);
+  opacity: .85;
+}
+.greet-clock:empty { display: none; }
+
+/* 夜间：光晕整体压暗一档，免得在深底上糊成一片 */
+html[data-theme="dark"] {
+  --glow-a: rgba(255, 208, 120, .1);
+  --glow-b: rgba(255, 232, 176, .05);
+}
+html[data-theme="dark"][data-daypart="dawn"] {
+  --glow-a: rgba(255, 152, 92, .16);
+  --glow-b: rgba(255, 198, 150, .07);
+}
+html[data-theme="dark"][data-daypart="morning"] {
+  --glow-a: rgba(255, 202, 96, .14);
+  --glow-b: rgba(255, 226, 168, .06);
+}
+html[data-theme="dark"][data-daypart="afternoon"] {
+  --glow-a: rgba(96, 168, 232, .16);
+  --glow-b: rgba(150, 200, 240, .07);
+}
+html[data-theme="dark"][data-daypart="dusk"] {
+  --glow-a: rgba(255, 128, 86, .18);
+  --glow-b: rgba(255, 170, 120, .08);
+}
+html[data-theme="dark"][data-daypart="night"] {
+  --glow-a: rgba(108, 140, 220, .2);
+  --glow-b: rgba(86, 112, 186, .09);
+}
+html[data-theme="dark"] .hero {
+  background:
+    radial-gradient(var(--glow-r) 330px at var(--glow-x) -8%, var(--glow-a), transparent 68%),
+    radial-gradient(var(--glow-r) 260px at var(--glow-x) 4%, var(--glow-b), transparent 70%),
+    radial-gradient(400px 230px at 90% 6%, rgba(99, 179, 240, .1), transparent 70%),
+    radial-gradient(340px 200px at 8% 96%, rgba(255, 143, 118, .07), transparent 72%),
+    linear-gradient(150deg, #16202a 0%, #141b23 56%, #142331 100%);
+}
+html[data-theme="dark"] .gi-dawn { color: #ffb877; }
+html[data-theme="dark"] .gi-sun { color: #ffcf6b; }
+html[data-theme="dark"] .gi-dusk { color: #ff9a72; }
+html[data-theme="dark"] .gi-moon { color: #a3b8ea; }
+
+/* 手机：只留问候语和时钟，第二句备注收起来，保证一行放得下 */
+@media (max-width: 560px) {
+  .greet { gap: 7px; font-size: 12px; }
+  .greet-line { gap: 7px; }
+  .greet-line b { font-size: 13px; letter-spacing: .1em; }
+  .gl-note { display: none; }
+}

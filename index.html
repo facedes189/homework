@@ -7,8 +7,9 @@
   <meta name="description" content="个人网页 —— 一个普通大学生的个人主页，记录生活、相册、作品与学习心得。">
   <script>document.documentElement.className = 'js';</script>
   <link rel="icon" href="images/favicon.svg" type="image/svg+xml">
-    <script>try{var _t=localStorage.getItem("faded_theme");if(_t==="dark")document.documentElement.dataset.theme="dark";}catch(e){}</script>
-  <link rel="stylesheet" href="css/style.css?v=20261113j">
+    <script>try{var _t=localStorage.getItem("faded_theme");if(_t==="dark")document.documentElement.dataset.theme="dark";}catch(e){}
+    try{var _h=new Date().getHours();document.documentElement.dataset.daypart=_h<5?"night":_h<9?"dawn":_h<12?"morning":_h<17?"afternoon":_h<20?"dusk":"night";}catch(e){}</script>
+  <link rel="stylesheet" href="css/style.css?v=20261113k">
 </head>
 <body>
 
@@ -123,6 +124,36 @@
         <section class="hero reveal">
           <div class="hero-text">
             <p class="eyebrow">Faded · Personal Site</p>
+            <p class="greet" id="greet">
+              <span class="greet-ico" aria-hidden="true">
+                <svg class="gi gi-dawn" viewBox="0 0 24 24">
+                  <path d="M1.4 18h21.2" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" fill="none"/>
+                  <path d="M7.4 17.6a4.6 4.6 0 0 1 9.2 0z" fill="currentColor"/>
+                  <path d="M12 4.6v2.3M5.9 7.1l1.6 1.6M18.1 7.1l-1.6 1.6M3.6 12.4h2.2M18.2 12.4h2.2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+                </svg>
+                <svg class="gi gi-sun" viewBox="0 0 24 24">
+                  <circle cx="12" cy="12" r="4.3" fill="currentColor"/>
+                  <path d="M12 3.1v2.4M12 18.5v2.4M3.1 12h2.4M18.5 12h2.4M5.8 5.8l1.7 1.7M16.5 16.5l1.7 1.7M18.2 5.8l-1.7 1.7M7.5 16.5l-1.7 1.7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+                </svg>
+                <svg class="gi gi-dusk" viewBox="0 0 24 24">
+                  <circle cx="12" cy="14.2" r="4.6" fill="currentColor"/>
+                  <path d="M1.4 18.6h21.2" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" fill="none"/>
+                </svg>
+                <svg class="gi gi-moon" viewBox="0 0 24 24">
+                  <path d="M20.2 14.8A8.7 8.7 0 0 1 9.2 3.8a8.7 8.7 0 1 0 11 11z" fill="currentColor"/>
+                  <path d="M17.4 4.3v1.9M16.4 5.3h2M5.4 9.6v1.5M4.7 10.3h1.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" fill="none"/>
+                </svg>
+              </span>
+              <span class="greet-say">
+                <span class="greet-line" data-part="any"><b>你好</b><span class="gl-note">今天也慢慢来</span></span>
+                <span class="greet-line" data-part="dawn"><b>清晨好</b><span class="gl-note">天刚亮，先喝口热水</span></span>
+                <span class="greet-line" data-part="morning"><b>上午好</b><span class="gl-note">脑子最清楚的时候</span></span>
+                <span class="greet-line" data-part="afternoon"><b>午后好</b><span class="gl-note">阳光正好，慢慢做事</span></span>
+                <span class="greet-line" data-part="dusk"><b>傍晚好</b><span class="gl-note">天色软下来了</span></span>
+                <span class="greet-line" data-part="night"><b>夜深了</b><span class="gl-note">早点睡，明天再说</span></span>
+              </span>
+              <span class="greet-clock" id="greet-clock"></span>
+            </p>
             <h1>有朋自远方来<br>不亦乐乎！</h1>
             <p class="welcome">欢迎参观</p>
             <p class="intro">
@@ -199,6 +230,6 @@
     </div>
   </footer>
 
-  <script src="js/main.js?v=20261113j"></script>
+  <script src="js/main.js?v=20261113k"></script>
 </body>
 </html>
