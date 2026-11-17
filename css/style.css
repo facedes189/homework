@@ -1789,3 +1789,11 @@ html[data-theme="dark"] .section-head span {
   border-color: rgba(99, 179, 240, .18);
   color: #9dbfd8;
 }
+
+/* 夜间文字对比度微调：次要说明文字提亮一档，避免发灰看不清 */
+html[data-theme="dark"] .header-note,
+html[data-theme="dark"] .page-lead,
+html[data-theme="dark"] .work-body p,
+html[data-theme="dark"] .side-list a,
+html[data-theme="dark"] .stat span { color: #93a3b4; }
+html[data-theme="dark"] .back-home { color: #8cc6f2; }
