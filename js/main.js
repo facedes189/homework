@@ -347,6 +347,33 @@
     avatar.setAttribute('role', 'button');
     avatar.setAttribute('tabindex', '0');
 
+    // 头像下方的提示语：彩蛋不再靠瞎碰，也兼作进度显示
+    var sideTip = document.querySelector('.side-tip');
+    var tipTxt = sideTip && sideTip.querySelector('.tip-txt');
+    var TIP_IDLE = '多点我几次试试';
+    try {
+      if (localStorage.getItem('faded_egg_done') === '1' && sideTip) {
+        sideTip.remove();
+        sideTip = null;
+        tipTxt = null;
+      }
+    } catch (e) {}
+
+    // 提示退场：找到彩蛋后不再出现（记在本地，下次打开也不再扰）
+    function tipDone(save) {
+      if (!sideTip) return;
+      // 只淡出、不摘节点：保留这点高度，卡片里的名字不会突然往上跳
+      sideTip.classList.add('is-gone');
+      sideTip = null;
+      tipTxt = null;
+      if (save) {
+        try { localStorage.setItem('faded_egg_done', '1'); } catch (e) {}
+      }
+    }
+    function tipSay(text) {
+      if (tipTxt) tipTxt.textContent = text;
+    }
+
     var taps = 0;
     var tapTimer = null;
     var reduceEgg = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -406,6 +433,7 @@
 
     function eggBoom() {
       taps = 0;
+      tipDone(true);
       avatar.classList.remove('is-wiggle');
       // 读一次布局，让动画能重新播
       void avatar.offsetWidth;
@@ -417,12 +445,19 @@
     function onTap() {
       taps++;
       if (taps >= 10) { eggBoom(); return; }
+      // 点了几下降就报还差几下，比干等十次更有数
+      tipSay('还差 ' + (10 - taps) + ' 下');
       // 每点一下重置计时：只要间隔不超过 2.2 秒，就接着往上数
       clearTimeout(tapTimer);
-      tapTimer = setTimeout(function () { taps = 0; }, 2200);
+      tapTimer = setTimeout(function () {
+        taps = 0;
+        tipSay(TIP_IDLE);
+      }, 2200);
     }
 
     avatar.addEventListener('click', onTap);
+    // 点提示语本身也算一下，省得手指落在字上没反应
+    if (sideTip) sideTip.addEventListener('click', onTap);
     avatar.addEventListener('keydown', function (e) {
       if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onTap(); }
     });
