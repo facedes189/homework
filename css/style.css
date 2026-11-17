@@ -1805,6 +1805,42 @@ html[data-theme="dark"] .back-home { color: #8cc6f2; }
    ============================================================ */
 .avatar { cursor: pointer; transition: transform .18s ease; }
 .avatar:active { transform: scale(.94); }
+
+/* 头像下方的一枚小提示：给彩蛋留个入口，点它也计入连击
+   选择器带上 .side-head，否则会被上面的 `.side-head p` 顶掉字号和字距 */
+.side-head .side-tip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: -moz-fit-content;
+  width: fit-content;
+  min-width: 112px;
+  margin: 1px auto 12px;
+  padding: 4px 12px 5px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .17);
+  color: rgba(255, 255, 255, .96);
+  font-size: 11.5px;
+  line-height: 1.5;
+  letter-spacing: .1em;
+  text-indent: .1em;
+  opacity: 1;
+  cursor: pointer;
+  -webkit-user-select: none;
+  user-select: none;
+  animation: tipFloat 3.6s ease-in-out infinite;
+  transition: opacity .45s ease, transform .45s ease;
+}
+.side-head .side-tip .tip-txt { white-space: nowrap; }
+@keyframes tipFloat {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-3px); }
+}
+/* 夜间底色更沉，往上一档才不会被吃掉 */
+html[data-theme="dark"] .side-head .side-tip { background: rgba(255, 255, 255, .22); }
+
+/* 找到彩蛋之后它就退场，不再反复提醒 */
+.side-head .side-tip.is-gone { opacity: 0; transform: translateY(-5px); pointer-events: none; }
 .avatar.is-wiggle { animation: avatarWiggle .5s cubic-bezier(.36, .07, .19, .97); }
 @keyframes avatarWiggle {
   0%, 100% { transform: rotate(0deg) scale(1); }
@@ -1866,6 +1902,7 @@ html[data-theme="dark"] .back-home { color: #8cc6f2; }
   .avatar.is-wiggle { animation: none; }
   .egg-star { animation-duration: 1ms; }
   .egg-toast { transition: none; }
+  .side-head .side-tip { animation: none; }
 }
 
 /* ============================================================
