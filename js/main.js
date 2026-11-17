@@ -142,17 +142,18 @@
   var likeNum = document.getElementById('like-num');
   if (likeBtn && likeNum) {
     var LIKE_API = 'https://abacus.jasoncameron.dev';
-    var LIKE_PATH = '/facedes-homework/likes2';
-    var LIKE_CACHE = 'faded_like_count_v2';   // 上一次显示过的数字（换计数器时同步换名）
-    var LIKE_QUEUE = 'faded_like_queue_v2';   // 还没同步出去的点击数
+    var LIKE_PATH = '/facedes-homework/likes3';
+    var LIKE_CACHE = 'faded_like_count_v3';   // 上一次显示过的数字（换计数器时同步换名）
+    var LIKE_QUEUE = 'faded_like_queue_v3';   // 还没同步出去的点击数
 
     var shown = null;     // 屏幕上显示的数字（只增不减）
     var server = null;    // 服务器已确认的数字
     var pending = 0;      // 排队等着同步的点击数
-    var busy = false;     // 是否有请求正在飞
-    var nextAt = 0;       // 下一次允许发请求的时间
+    var inflight = 0;     // 正在飞行的请求数
+    var nextAt = 0;       // 429 退让时刻（只在服务器说「太快了」时才等待）
     var timer = null;
-    var GAP = 340;        // 请求间隔 ≈ 服务器容量（30 次/10 秒），只影响同步节奏，不影响计数
+    var FLY = 3;          // 并发上限：盖住网络延迟，让排队尽快清空
+    var STEP = 340;       // 两次请求的起搏间隔 ≈ 服务器容量（30 次/10 秒），不是人为限流
 
     function load(key) {
       try {
@@ -208,50 +209,59 @@
         [{ transform: 'scale(1)' }, { transform: 'scale(1.34)' }, { transform: 'scale(1)' }],
         { duration: 180, easing: 'cubic-bezier(.3,.9,.4,1)' });
     }
-    /* 排队同步：一次只飞一个请求，按节奏发，429 就退让重试，绝不丢点击 */
+    /* 排队同步：本地计数永远即时、永不丢；同步到云端则均匀起搏（≈3 次/秒，
+       正好是服务器 30 次/10 秒的容量上限），3 路并发盖住网络延迟。
+       服务器一旦回 429 就按它响应体里的提示等——这是它自己的规则，客户端只能遵守 */
     function schedule(ms) {
       if (timer) return;
-      timer = setTimeout(function () { timer = null; flush(); }, ms);
+      timer = setTimeout(function () { timer = null; pump(); }, ms);
     }
-    function flush() {
-      if (busy || !window.fetch) return;
+    function pump() {
+      if (!window.fetch) return;
       if (pending <= 0) return;
       var wait = nextAt - Date.now();
       if (wait > 0) { schedule(wait); return; }
+      while (inflight < FLY && pending > 0) {
+        var now = Date.now();
+        if (now < nextAt) break;
+        inflight++;
+        // 发出去就先从队列扣掉：万一页面被关掉，这一下也已经交给服务器了
+        pending = Math.max(0, pending - 1);
+        queueWrite();
+        nextAt = Math.max(nextAt, now + STEP);   // 均匀起搏，别把额度窗口一次烧光
 
-      busy = true;
-      nextAt = Date.now() + GAP;
-      // 发出去就先从队列扣掉：万一页面被关掉，这一下也已经交给服务器了
-      pending = Math.max(0, pending - 1);
-      queueWrite();
-
-      fetch(LIKE_API + '/hit' + LIKE_PATH, { cache: 'no-store', keepalive: true })
-        .then(function (r) {
-          if (r.status === 429) {
-            var ra = Number(r.headers.get('Retry-After'));
-            nextAt = Date.now() + (ra > 0 ? Math.min(ra + 300, 6000) : 1200);
-            throw new Error('rate');
-          }
-          if (!r.ok) throw new Error('http ' + r.status);
-          return r.json();
-        })
-        .then(function (d) {
-          var v = Number(d && d.value);
-          if (isNaN(v)) throw new Error('bad');
-          server = v;
-          var est = v + pending;
-          if (shown === null || est > shown) { shown = est; render(); }
-          queueWrite();
-        })
-        .catch(function () {
-          pending++;      // 没成功就退回队列，稍后再发
-          nextAt = Math.max(nextAt, Date.now() + 2000);
-          queueWrite();
-        })
-        .then(function () {
-          busy = false;
-          if (pending > 0) schedule(Math.max(0, nextAt - Date.now()));
-        });
+        fetch(LIKE_API + '/hit' + LIKE_PATH, { cache: 'no-store', keepalive: true })
+          .then(function (r) {
+            if (r.status === 429) {
+              // 服务器把等待秒数写在响应体里：{"error":"Too many requests. Try again in 2s"}
+              return r.json().catch(function () { return null; }).then(function (e) {
+                var m = e && e.error && /(\d+)\s*s/i.exec(String(e.error));
+                nextAt = Date.now() + (m ? Number(m[1]) * 1000 + 200 : 1500);
+                pending++;       // 没收下就退回队列
+                queueWrite();
+              });
+            }
+            if (!r.ok) throw new Error('http ' + r.status);
+            return r.json().then(function (d) {
+              var v = Number(d && d.value);
+              if (isNaN(v)) return;
+              server = v;
+              var est = v + pending;
+              if (shown === null || est > shown) { shown = est; render(); }
+              queueWrite();
+            });
+          })
+          .catch(function () {
+            pending++;           // 网络失败也退回队列，稍后再发
+            nextAt = Math.max(nextAt, Date.now() + 1500);
+            queueWrite();
+          })
+          .then(function () {
+            inflight--;
+            pump();              // 腾出并发位，继续把队列发完
+          });
+      }
+      // 并发已满时：任何一个请求回来都会触发 pump 续上
     }
 
     // 先用上次的缓存垫一下，再取服务器上的真实累计
