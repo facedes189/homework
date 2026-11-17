@@ -1819,7 +1819,10 @@ html[data-theme="dark"] .back-home { color: #8cc6f2; }
   z-index: 300;
   overflow: hidden;
   pointer-events: none;
+  transition: opacity .5s ease;
 }
+/* 收场时整层淡出，星星不会整屏“啪”一下消失 */
+.egg-rain.off { opacity: 0; }
 .egg-star {
   position: absolute;
   top: -7vh;
@@ -1827,7 +1830,7 @@ html[data-theme="dark"] .back-home { color: #8cc6f2; }
   height: 18px;
   background: currentColor;
   clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
-  animation: starFall var(--dur, 2200ms) cubic-bezier(.33, .06, .68, .94) forwards;
+  animation: starFall var(--dur, 2200ms) cubic-bezier(.33, .06, .68, .94) infinite;
   animation-delay: var(--delay, 0ms);
   will-change: transform, opacity;
 }
