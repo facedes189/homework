@@ -1601,3 +1601,191 @@ section[id], article[id] { scroll-margin-top: 90px; }
   0%, 49%   { border-right-color: #9fe0a0; }
   50%, 100% { border-right-color: transparent; }
 }
+
+/* ============================================================
+   15. 日 / 夜间主题（CSS 变量 + 过渡，切换后写入 localStorage）
+   ============================================================ */
+
+/* --- 页头右侧：说明文字 + 切换按钮 --- */
+.header-right { display: flex; align-items: center; gap: 16px; }
+.header-right .header-note { padding-top: 0; }
+
+.theme-toggle {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 13px 0 11px;
+  font-family: inherit;
+  font-size: 12px;
+  letter-spacing: .12em;
+  color: var(--blue-deep);
+  background: rgba(11, 95, 165, .06);
+  border: 1px solid rgba(11, 95, 165, .16);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background .25s, border-color .25s, color .25s, translate .25s;
+}
+.theme-toggle:hover { translate: 0 -2px; background: rgba(11, 95, 165, .1); }
+.theme-toggle svg { width: 15px; height: 15px; fill: currentColor; display: block; }
+.theme-toggle .tt-sun { display: none; }
+
+/* --- 夜间调色板：只换变量，组件自动跟着变 --- */
+html[data-theme="dark"] {
+  --blue: #63b3f0;
+  --blue-deep: #a9d4f5;
+  --blue-light: rgba(99, 179, 240, .14);
+  --red: #ff8f76;
+  --red-light: rgba(255, 143, 118, .16);
+  --ink: #e9eff6;
+  --ink-2: #b9c6d4;
+  --ink-3: #8494a6;
+  --paper: #0d1218;
+  --white: #151d26;
+  --line: rgba(255, 255, 255, .1);
+  --shadow-sm: 0 2px 12px rgba(0, 0, 0, .38);
+  --shadow-md: 0 12px 34px rgba(0, 0, 0, .48);
+  color-scheme: dark;
+}
+html[data-theme="dark"] .theme-toggle {
+  color: #cfe6fb;
+  background: rgba(255, 255, 255, .07);
+  border-color: rgba(255, 255, 255, .16);
+}
+html[data-theme="dark"] .theme-toggle:hover { background: rgba(255, 255, 255, .12); }
+html[data-theme="dark"] .theme-toggle .tt-sun { display: block; }
+html[data-theme="dark"] .theme-toggle .tt-moon { display: none; }
+
+/* 页面底色：换成夜色下带三处微光，不是死黑 */
+html[data-theme="dark"] body {
+  background:
+    radial-gradient(900px 520px at 10% -8%, rgba(38, 92, 146, .38) 0%, rgba(38, 92, 146, 0) 62%),
+    radial-gradient(760px 460px at 104% 2%, rgba(150, 66, 48, .2) 0%, rgba(150, 66, 48, 0) 58%),
+    radial-gradient(820px 480px at 48% 108%, rgba(120, 92, 40, .18) 0%, rgba(120, 92, 40, 0) 62%),
+    var(--paper);
+  color: var(--ink-2);
+}
+html[data-theme="dark"] body::before {
+  background-image: radial-gradient(rgba(255, 255, 255, .055) 1px, transparent 1px);
+}
+
+/* 页头 */
+html[data-theme="dark"] .site-header {
+  background:
+    radial-gradient(620px 170px at 96% -50%, rgba(99, 179, 240, .16), transparent 74%),
+    radial-gradient(380px 120px at 4% 130%, rgba(255, 143, 118, .08), transparent 74%),
+    linear-gradient(180deg, #131b24 0%, #101720 100%);
+}
+
+/* 横幅：白天有太阳，夜里换成月亮与暗云 */
+html[data-theme="dark"] .banner {
+  background:
+    radial-gradient(circle 30px at 86% 30%, rgba(222, 236, 255, .95) 0 44%, rgba(150, 195, 255, .3) 66%, rgba(150, 195, 255, 0) 80%),
+    radial-gradient(640px 180px at 12% 0%, rgba(64, 116, 180, .26), transparent 72%),
+    linear-gradient(180deg, #0a1826 0%, #102437 52%, #16202c 100%);
+}
+html[data-theme="dark"] .banner-title {
+  color: #e6f1fb;
+  text-shadow: 0 2px 16px rgba(92, 170, 255, .45), 0 0 32px rgba(92, 170, 255, .2);
+}
+html[data-theme="dark"] .cloud { fill: #7f96ae; opacity: .2; }
+html[data-theme="dark"] .banner-scene { filter: brightness(.4) saturate(.6); opacity: .92; }
+
+/* 导航条：夜间用更深的蓝，避免亮蓝色配白字 */
+html[data-theme="dark"] .site-nav {
+  background: linear-gradient(180deg, #17405f, #0f2c44);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, .45);
+}
+
+/* 主要卡片与首屏 */
+html[data-theme="dark"] .hero {
+  background:
+    radial-gradient(400px 230px at 90% 6%, rgba(99, 179, 240, .1), transparent 70%),
+    radial-gradient(340px 200px at 8% 96%, rgba(255, 143, 118, .07), transparent 72%),
+    linear-gradient(150deg, #16202a 0%, #141b23 56%, #142331 100%);
+}
+html[data-theme="dark"] .side-note {
+  background: linear-gradient(180deg, #19232e, #131b23);
+}
+html[data-theme="dark"] .side-head { background: linear-gradient(140deg, #17405f, #0d2437); }
+
+/* 代码片段、表单、相册 */
+html[data-theme="dark"] .prose code,
+html[data-theme="dark"] .news code {
+  background: rgba(255, 255, 255, .075);
+  color: #9ecbf0;
+}
+html[data-theme="dark"] .field input,
+html[data-theme="dark"] .field textarea {
+  background: #101820;
+  border-color: rgba(255, 255, 255, .12);
+  color: var(--ink);
+}
+html[data-theme="dark"] .field input:focus,
+html[data-theme="dark"] .field textarea:focus {
+  background: #0c141b;
+  border-color: rgba(99, 179, 240, .45);
+  box-shadow: 0 0 0 3px rgba(99, 179, 240, .12);
+}
+html[data-theme="dark"] .field input::placeholder,
+html[data-theme="dark"] .field textarea::placeholder { color: #5f7186; }
+
+html[data-theme="dark"] .stat { background: linear-gradient(180deg, #18222c, #141b23); }
+html[data-theme="dark"] .stage { background: linear-gradient(180deg, #131d27, #16222e); }
+html[data-theme="dark"] .stage.dark { background: radial-gradient(circle at 50% 40%, #14324f, #08131d); }
+html[data-theme="dark"] .shot,
+html[data-theme="dark"] .photo-strip a { background: #1b2530; box-shadow: 0 6px 18px rgba(0, 0, 0, .35); }
+
+/* 页脚：夜里收得更沉一点 */
+html[data-theme="dark"] .site-footer {
+  background: linear-gradient(180deg, #0b1520 0%, #070d13 100%);
+}
+
+/* 切换时不要生硬跳变 */
+body, .site-header, .banner, .hero, .card, .post, .info-block, .form-card,
+.stat, .side-note, .side-head, .stage, .site-footer, .theme-toggle,
+.field input, .field textarea {
+  transition: background-color .45s ease, background .45s ease, border-color .45s ease,
+              color .45s ease, box-shadow .45s ease;
+}
+.work {
+  transition: transform .3s, box-shadow .3s, background-color .45s ease, border-color .45s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body, .site-header, .banner, .hero, .card, .post, .info-block, .form-card,
+  .stat, .side-note, .side-head, .stage, .site-footer, .theme-toggle,
+  .field input, .field textarea, .work { transition: none !important; }
+}
+
+/* 夜间补丁：卡片原本是「暖白渐变 + 内高光」，变量换不到，单独压暗 */
+html[data-theme="dark"] .card,
+html[data-theme="dark"] .info-block,
+html[data-theme="dark"] .post,
+html[data-theme="dark"] .work,
+html[data-theme="dark"] .form-card,
+html[data-theme="dark"] .contact-item,
+html[data-theme="dark"] .news {
+  background: linear-gradient(180deg, #18212b 0%, #141c25 100%);
+  border-color: rgba(255, 255, 255, .09);
+  box-shadow: 0 2px 14px rgba(0, 0, 0, .34);
+}
+html[data-theme="dark"] .stat {
+  background: linear-gradient(180deg, #18222c, #131a22);
+  border-color: rgba(255, 255, 255, .09);
+  box-shadow: 0 2px 14px rgba(0, 0, 0, .32);
+}
+/* 数据卡的渐变数字在深色底上要提亮，否则发闷 */
+html[data-theme="dark"] .stat b { background-image: linear-gradient(155deg, #7cc4f7, #b7dcf9); }
+html[data-theme="dark"] .stat:nth-child(even) b { background-image: linear-gradient(155deg, #ffb59f, #ff8f76); }
+/* 章节标题的编号牌、引用块等小面积浅底 */
+html[data-theme="dark"] .info-block h2 .num {
+  border-color: rgba(255, 143, 118, .3);
+  background: rgba(255, 143, 118, .14);
+}
+html[data-theme="dark"] .section-head span {
+  background: rgba(99, 179, 240, .1);
+  border-color: rgba(99, 179, 240, .18);
+  color: #9dbfd8;
+}

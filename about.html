@@ -7,7 +7,8 @@
   <meta name="description" content="关于我：个人概况、联系方式、教育背景与写信给我。">
   <script>document.documentElement.className = 'js';</script>
   <link rel="icon" href="images/favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="css/style.css?v=20261113g">
+    <script>try{var _t=localStorage.getItem("faded_theme");if(_t==="dark")document.documentElement.dataset.theme="dark";}catch(e){}</script>
+  <link rel="stylesheet" href="css/style.css?v=20261113h">
 </head>
 <body>
 
@@ -19,7 +20,18 @@
           <strong>个人网页</strong>
         </span>
       </div>
-      <p class="header-note">新生实践课网页制作</p>
+      <div class="header-right">
+        <p class="header-note">新生实践课网页制作</p>
+        <button class="theme-toggle" id="theme-toggle" type="button" aria-pressed="false"
+                aria-label="切换日间 / 夜间模式" title="切换日间 / 夜间">
+          <svg class="tt-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.6 14.4A8.7 8.7 0 0 1 9.6 3.4 8.7 8.7 0 1 0 20.6 14.4Z"/></svg>
+          <svg class="tt-sun" viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="12" r="4.1"/>
+            <path d="M12 2.6v2.3M12 19.1v2.3M2.6 12h2.3M19.1 12h2.3M5.5 5.5l1.6 1.6M16.9 16.9l1.6 1.6M18.5 5.5l-1.6 1.6M7.1 16.9l-1.6 1.6" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+          </svg>
+          <span class="tt-txt">夜间</span>
+        </button>
+      </div>
     </div>
   </header>
 
@@ -180,6 +192,6 @@
     </div>
   </footer>
 
-  <script src="js/main.js?v=20261113g"></script>
+  <script src="js/main.js?v=20261113h"></script>
 </body>
 </html>

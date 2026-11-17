@@ -339,4 +339,25 @@
       if (document.hidden) flushWrites();
     });
   }
+
+  /* ---------- 8. 日 / 夜间主题切换 ---------- */
+  var themeBtn = document.getElementById('theme-toggle');
+  if (themeBtn) {
+    var rootEl = document.documentElement;
+    var themeTxt = themeBtn.querySelector('.tt-txt');
+    var syncTheme = function () {
+      var dark = rootEl.getAttribute('data-theme') === 'dark';
+      themeBtn.setAttribute('aria-pressed', dark ? 'true' : 'false');
+      themeBtn.setAttribute('title', dark ? '切换到日间模式' : '切换到夜间模式');
+      if (themeTxt) themeTxt.textContent = dark ? '日间' : '夜间';
+    };
+    syncTheme();
+    themeBtn.addEventListener('click', function () {
+      var dark = rootEl.getAttribute('data-theme') === 'dark';
+      if (dark) rootEl.removeAttribute('data-theme');
+      else rootEl.setAttribute('data-theme', 'dark');
+      try { localStorage.setItem('faded_theme', dark ? 'light' : 'dark'); } catch (e) {}
+      syncTheme();
+    });
+  }
 })();
