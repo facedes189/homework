@@ -372,11 +372,10 @@
       if (document.querySelector('.egg-rain')) return;
       var layer = document.createElement('div');
       layer.className = 'egg-rain';
-      // 三色一组，再加两颗亮星；用小星的透明度做出远近层次
+      // 七色一轮，小星靠透明度做远近
       var palette = [[240, 180, 41], [225, 85, 60], [11, 95, 165], [127, 182, 227], [255, 215, 102], [255, 159, 122], [255, 246, 219]];
-      // 手机屏幕窄，少放一些，免得掉帧
-      var total = window.innerWidth < 640 ? 70 : 110;
-      var last = 0;
+      // 手机屏幕小，数量减半，避免掉帧
+      var total = window.innerWidth < 640 ? 140 : 240;
       for (var i = 0; i < total; i++) {
         var s = document.createElement('i');
         s.className = 'egg-star';
@@ -384,22 +383,25 @@
         var near = i % 5 === 0;                    // 每五颗里挑一颗又大又实的，落下时有前后感
         var size = near ? 22 + Math.random() * 16 : 8 + Math.random() * 15;
         var alpha = near ? 1 : .45 + Math.random() * .4;
-        var dur = Math.round(1700 + Math.random() * 1900);
-        var delay = Math.round(Math.random() * 900);
+        var dur = Math.round(2400 + Math.random() * 2000);
         s.style.left = (Math.random() * 100) + 'vw';
         s.style.width = size + 'px';
         s.style.height = size + 'px';
         s.style.color = 'rgba(' + c[0] + ',' + c[1] + ',' + c[2] + ',' + alpha.toFixed(2) + ')';
         s.style.setProperty('--dur', dur + 'ms');
-        s.style.setProperty('--delay', delay + 'ms');
+        // 负延迟：动画一开始就已经播到一半，星星一出现就铺满整屏；
+        // 再配合 infinite，整场雨期间天上始终是满的，不会越落越稀。
+        s.style.setProperty('--delay', -Math.round(Math.random() * dur) + 'ms');
         s.style.setProperty('--drift', Math.round((Math.random() - .5) * 240) + 'px');
         s.style.setProperty('--spin', Math.round(Math.random() * 620 - 310) + 'deg');
         layer.appendChild(s);
-        if (delay + dur > last) last = delay + dur;
       }
       document.body.appendChild(layer);
-      // 等最后一颗也落完再收尾，不留残节点
-      setTimeout(function () { layer.remove(); }, last + 260);
+      // 落满 4.6 秒后整层淡出，再拆节点
+      setTimeout(function () {
+        layer.classList.add('off');
+        setTimeout(function () { layer.remove(); }, 560);
+      }, 4600);
     }
 
     function eggBoom() {
