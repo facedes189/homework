@@ -340,7 +340,85 @@
     });
   }
 
-  /* ---------- 8. 日 / 夜间主题切换 ---------- */
+  /* ---------- 8. 彩蛋：连点左栏头像十下，掉一场星星 ---------- */
+  var avatar = document.querySelector('.side .avatar');
+  if (avatar) {
+    avatar.setAttribute('title', '连点十下试试');
+    avatar.setAttribute('role', 'button');
+    avatar.setAttribute('tabindex', '0');
+
+    var taps = 0;
+    var tapTimer = null;
+    var reduceEgg = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    function eggToast(msg) {
+      var tip = document.querySelector('.egg-toast');
+      if (!tip) {
+        tip = document.createElement('div');
+        tip.className = 'egg-toast';
+        document.body.appendChild(tip);
+      }
+      tip.textContent = msg;
+      // 两次 rAF 保证已经布局过，过渡才会生效
+      requestAnimationFrame(function () {
+        requestAnimationFrame(function () { tip.classList.add('on'); });
+      });
+      clearTimeout(tip.__t);
+      tip.__t = setTimeout(function () { tip.classList.remove('on'); }, 2800);
+    }
+
+    function starRain() {
+      if (reduceEgg) return;
+      if (document.querySelector('.egg-rain')) return;
+      var layer = document.createElement('div');
+      layer.className = 'egg-rain';
+      var colors = ['#f0b429', '#e1553c', '#0b5fa5', '#7fb6e3', '#ffd766', '#ff9f7a'];
+      for (var i = 0; i < 46; i++) {
+        var s = document.createElement('i');
+        s.className = 'egg-star';
+        var size = 12 + Math.random() * 16;
+        s.style.left = (Math.random() * 100) + 'vw';
+        s.style.width = size + 'px';
+        s.style.height = size + 'px';
+        s.style.color = colors[i % colors.length];
+        s.style.setProperty('--dur', Math.round(1900 + Math.random() * 1700) + 'ms');
+        s.style.setProperty('--delay', Math.round(Math.random() * 750) + 'ms');
+        s.style.setProperty('--drift', Math.round((Math.random() - .5) * 190) + 'px');
+        s.style.setProperty('--spin', Math.round(Math.random() * 560 - 280) + 'deg');
+        layer.appendChild(s);
+      }
+      document.body.appendChild(layer);
+      setTimeout(function () { layer.remove(); }, 3800);
+    }
+
+    function eggBoom() {
+      taps = 0;
+      avatar.classList.remove('is-wiggle');
+      // 读一次布局，让动画能重新播
+      void avatar.offsetWidth;
+      avatar.classList.add('is-wiggle');
+      starRain();
+      eggToast('你发现了彩蛋 · 十连击，掉一场星星');
+    }
+
+    function onTap() {
+      taps++;
+      if (taps >= 10) { eggBoom(); return; }
+      // 每点一下重置计时：只要间隔不超过 2.2 秒，就接着往上数
+      clearTimeout(tapTimer);
+      tapTimer = setTimeout(function () { taps = 0; }, 2200);
+    }
+
+    avatar.addEventListener('click', onTap);
+    avatar.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onTap(); }
+    });
+    avatar.addEventListener('animationend', function () {
+      avatar.classList.remove('is-wiggle');
+    });
+  }
+
+  /* ---------- 9. 日 / 夜间主题切换 ---------- */
   var themeBtn = document.getElementById('theme-toggle');
   if (themeBtn) {
     var rootEl = document.documentElement;

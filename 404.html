@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>页面走丢了 · 新生实践课网页</title>
+<meta name="description" content="404：这个地址下没有页面，回主页重新找找吧。">
+<meta name="robots" content="noindex">
+<script>document.documentElement.className = 'js';</script>
+<script>
+  /* 先把主题定下来，深色用户的 404 不会先闪一下白 */
+  try {
+    if (localStorage.getItem('faded_theme') === 'dark') {
+      document.documentElement.dataset.theme = 'dark';
+    }
+  } catch (e) {}
+</script>
+<script>
+  /* GitHub Pages 会把 404.html 直接渲染在「用户请求的那个地址」上，
+     比如访问 /homework/abc/def 时，页面 URL 就是 /homework/abc/def。
+     这时 css/、js/ 这类相对路径会被解析到 /homework/abc/ 下面，全部 404。
+     所以先算出站点根目录，再把样式、脚本、链接都改成根路径。 */
+  (function () {
+    var p = location.pathname;
+    var m = /\/(homework|faded)\//.exec(p + '/');
+    var root = m ? p.slice(0, m.index + m[0].length) : './';
+    window.__ROOT__ = root;
+    document.write('<link rel="icon" href="' + root + 'images/favicon.svg" type="image/svg+xml">');
+    document.write('<link rel="stylesheet" href="' + root + 'css/style.css?v=20261113j">');
+  })();
+</script>
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="wrap header-inner">
+      <div class="header-left">
+        <a class="back-home" data-root="index.html" href="index.html">回到主页</a>
+        <span class="brand-text">
+          <strong>个人网页</strong>
+        </span>
+      </div>
+      <div class="header-right">
+        <p class="header-note">新生实践课网页制作</p>
+        <button class="theme-toggle" id="theme-toggle" type="button" aria-pressed="false"
+                aria-label="切换日间 / 夜间模式" title="切换日间 / 夜间">
+          <svg class="tt-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.6 14.4A8.7 8.7 0 0 1 9.6 3.4 8.7 8.7 0 1 0 20.6 14.4Z"/></svg>
+          <svg class="tt-sun" viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="12" r="4.1"/>
+            <path d="M12 2.6v2.3M12 19.1v2.3M2.6 12h2.3M19.1 12h2.3M5.5 5.5l1.6 1.6M16.9 16.9l1.6 1.6M18.5 5.5l-1.6 1.6M7.1 16.9l-1.6 1.6" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+          </svg>
+          <span class="tt-txt">夜间</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="wrap err-page">
+    <div class="err-card">
+
+      <div class="err-text">
+        <p class="err-kicker">Error 404 · Page Not Found</p>
+        <div class="err-code">404</div>
+        <h1 class="err-title">这一页走丢了</h1>
+        <p class="err-desc">
+          地址栏里的链接可能拼错了一个字母，或者这页已经被我收起来了。
+          别着急，回主页重新找找。
+        </p>
+        <div class="err-actions">
+          <a class="err-btn err-btn-main" data-root="index.html" href="index.html">回到主页</a>
+          <a class="err-btn err-btn-ghost" data-root="gallery.html" href="gallery.html">逛逛相册</a>
+        </div>
+      </div>
+
+      <svg class="err-art" viewBox="0 0 300 270" role="img" aria-label="一只断了线的气球飘在山坡上空">
+        <defs>
+          <!-- 山坡左右两端渐隐，融进卡片底色，不出现生硬的直边 -->
+          <linearGradient id="hillFade" gradientUnits="userSpaceOnUse" x1="-24" y1="0" x2="324" y2="0">
+            <stop offset="0" stop-color="#fff" stop-opacity="0"/>
+            <stop offset="0.13" stop-color="#fff" stop-opacity="1"/>
+            <stop offset="0.87" stop-color="#fff" stop-opacity="1"/>
+            <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+          </linearGradient>
+          <mask id="hillMask" maskUnits="userSpaceOnUse" x="-24" y="0" width="348" height="270">
+            <rect x="-24" y="0" width="348" height="270" fill="url(#hillFade)"/>
+          </mask>
+        </defs>
+
+        <!-- 远山 -->
+        <g mask="url(#hillMask)">
+          <path class="art-hill" d="M-24 218c52-30 86-14 120 4s66 20 100 2 62-20 124 2v58H-24z" fill="#dce9f6"/>
+          <path class="art-hill" d="M-24 246c56-20 92-4 128 10s74 8 108-6 56-10 108 2v32H-24z" fill="#c6d9ee"/>
+        </g>
+
+        <!-- 云 -->
+        <g class="art-cloud" fill="#ffffff" opacity=".92">
+          <ellipse cx="66" cy="66" rx="29" ry="16"/>
+          <ellipse cx="93" cy="58" rx="21" ry="18"/>
+          <ellipse cx="224" cy="38" rx="24" ry="13"/>
+          <ellipse cx="244" cy="45" rx="15" ry="10"/>
+        </g>
+
+        <!-- 气球：轻轻上下浮动 -->
+        <g class="art-balloon">
+          <ellipse cx="154" cy="90" rx="37" ry="44" fill="#e1553c"/>
+          <ellipse cx="141" cy="72" rx="9" ry="13" fill="#ffffff" opacity=".32" transform="rotate(-20 141 72)"/>
+          <path d="M154 134l-9 12h18z" fill="#c8452f"/>
+          <!-- 飘下来的那截线 -->
+          <path class="art-string" d="M154 146c11 15-11 24 2 40" fill="none" stroke="#a3b4c2" stroke-width="2.2" stroke-linecap="round"/>
+          <!-- 断口：虚线继续往下飘 -->
+          <path class="art-string" d="M158 190c-7 10 6 16-1 26" fill="none" stroke="#a3b4c2" stroke-width="2.2"
+                stroke-linecap="round" stroke-dasharray="4 7"/>
+        </g>
+
+        <!-- 山坡上的两间小屋（与首页横幅同一套造型） -->
+        <path d="M92 238v-16l13-11 13 11v16z" fill="#ffffff" opacity=".95"/>
+        <rect x="101" y="227" width="6" height="7" fill="#c6d9ee"/>
+        <path d="M196 240v-12l10-8 10 8v12z" fill="#ffffff" opacity=".8"/>
+
+      </svg>
+
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="wrap footer-inner">
+      <div>
+        <div class="brand-mini">个人网页</div>
+        <p>Copyright &copy; <span id="year">2026</span> faded 版权所有 · 用心生活，认真记录</p>
+      </div>
+      <div>
+        <p id="today">今天是好日子</p>
+        <p class="footer-friends">
+          <a data-root="index.html" href="index.html">主页</a>
+          <a data-root="works.html" href="works.html">作品</a>
+          <a data-root="thoughts.html" href="thoughts.html">心得</a>
+        </p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      var root = window.__ROOT__ || './';
+      // 把占位链接换成真正的站点根路径（本地直接打开时 root 就是 ./）
+      document.querySelectorAll('[data-root]').forEach(function (a) {
+        a.setAttribute('href', root + a.getAttribute('data-root'));
+      });
+      // 样式之外的交互（主题、年份、日期）由主脚本提供
+      var s = document.createElement('script');
+      s.src = root + 'js/main.js?v=20261113j';
+      document.body.appendChild(s);
+    })();
+  </script>
+</body>
+</html>
