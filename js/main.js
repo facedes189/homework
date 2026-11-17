@@ -3,10 +3,46 @@
    2) 技能条进入视口时生长
    3) 相册灯箱（翻页 / 缩略图 / 双击放大 / 滑动切换）
    4) 页脚日期
-   5) 留言表单交给邮件客户端
+   5) 留言表单 → 便签墙
+   6) 首页数字递增
+   7) 点赞
+   8) 彩蛋
+   9) 日夜主题
+   10) 首页按时段问候
+   11) 作品页旋钮
+   12) 便签墙（拖动 / 本地保存）
+   13) 探索成就
 */
 (function () {
   'use strict';
+
+  /* ---------- 0. 共用小工具 ---------- */
+  function lsGet(key, fallback) {
+    try {
+      var v = localStorage.getItem(key);
+      return v === null ? fallback : JSON.parse(v);
+    } catch (e) { return fallback; }
+  }
+  function lsSet(key, val) {
+    try { localStorage.setItem(key, JSON.stringify(val)); } catch (e) {}
+  }
+
+  /* 底部小提示条：彩蛋和成就共用 */
+  function siteToast(msg) {
+    var tip = document.querySelector('.egg-toast');
+    if (!tip) {
+      tip = document.createElement('div');
+      tip.className = 'egg-toast';
+      document.body.appendChild(tip);
+    }
+    tip.textContent = msg;
+    // 两次 rAF 保证已经布局过，过渡才会生效
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () { tip.classList.add('on'); });
+    });
+    clearTimeout(tip.__t);
+    tip.__t = setTimeout(function () { tip.classList.remove('on'); }, 2800);
+  }
 
   /* ---------- 1. 滚动淡入 ---------- */
   var revealEls = document.querySelectorAll('.reveal');
@@ -83,6 +119,7 @@
     var tx = 0;
     var ty = 0;
     var lastFocus = null;
+    var seen = {};
 
     items.forEach(function (it, i) {
       var btn = document.createElement('button');
@@ -124,6 +161,11 @@
       lbCount.textContent = (cur + 1) + ' / ' + items.length;
       thumbEls.forEach(function (el, k) { el.classList.toggle('on', k === cur); });
       resetZoom();
+      // 六张都翻过一遍，记一个成就
+      seen[cur] = 1;
+      var seenCount = 0;
+      for (var k in seen) if (seen.hasOwnProperty(k)) seenCount++;
+      if (seenCount >= items.length) unlock('photos');
       // 顺手把左右两张也拉下来，翻页时不用等
       [-1, 1].forEach(function (d) {
         var pre = new Image();
@@ -239,19 +281,54 @@
   var yearEl = document.getElementById('year');
   if (yearEl) yearEl.textContent = new Date().getFullYear();
 
-  /* ---------- 5. 留言表单 ---------- */
+  /* ---------- 5. 留言表单：先贴便签，想寄邮件再寄 ---------- */
   var form = document.getElementById('letter-form');
   if (form) {
-    form.addEventListener('submit', function (e) {
-      e.preventDefault();
-      var name = form.elements.name.value.trim();
-      var mail = form.elements.email.value.trim();
-      var text = form.elements.message.value.trim();
+    var formTip = document.getElementById('form-tip');
+    var mailBtn = null;
+    var lastLetter = null;
+
+    function mailtoMe(name, mail, text) {
       var subject = encodeURIComponent('来自「个人网页」的留言 - ' + (name || '一位访客'));
       var body = encodeURIComponent(text + '\n\n—— ' + name + (mail ? '（' + mail + '）' : ''));
       window.location.href = 'mailto:1135759939@qq.com?subject=' + subject + '&body=' + body;
-      var tip = document.getElementById('form-tip');
-      if (tip) tip.textContent = '已唤起邮件客户端，如果没有任何反应，可以直接复制邮箱发信给我 : )';
+    }
+
+    function sayTip(text, withMail) {
+      if (!formTip) return;
+      formTip.textContent = text;
+      if (mailBtn && mailBtn.parentNode) mailBtn.parentNode.removeChild(mailBtn);
+      mailBtn = null;
+      if (!withMail) return;
+      mailBtn = document.createElement('button');
+      mailBtn.type = 'button';
+      mailBtn.className = 'again';
+      mailBtn.textContent = '用邮件寄一份';
+      mailBtn.addEventListener('click', function () {
+        if (lastLetter) mailtoMe(lastLetter.name, lastLetter.mail, lastLetter.text);
+      });
+      formTip.appendChild(mailBtn);
+    }
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var name = form.elements.name.value.trim() || '一位访客';
+      var mail = form.elements.email.value.trim();
+      var text = form.elements.message.value.trim();
+      if (!text) {
+        sayTip('还没写内容呢，写一句再贴。', false);
+        form.elements.message.focus();
+        return;
+      }
+      if (!addNote(name, text)) {
+        mailtoMe(name, mail, text);
+        sayTip('便签墙没准备好，已经改用邮件了。', false);
+        return;
+      }
+      lastLetter = { name: name, mail: mail, text: text };
+      form.elements.message.value = '';
+      unlock('note');
+      sayTip('便签贴好了，可以拖着换位置。它只存在这台电脑的浏览器里，想让我真的收到，', true);
     });
   }
 
@@ -466,6 +543,7 @@
 
     likeBtn.addEventListener('click', function (e) {
       if (!looksHuman(e)) return;   // AI / 脚本点的，一律不记
+      unlock('like');
       // 先记账（本地 +1、入队、触发同步），动画放在最后：
       // 就算动画那一行出问题，也绝不会漏掉这一下
       shown = (shown === null ? 1 : shown + 1);
@@ -531,22 +609,6 @@
     var tapTimer = null;
     var reduceEgg = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    function eggToast(msg) {
-      var tip = document.querySelector('.egg-toast');
-      if (!tip) {
-        tip = document.createElement('div');
-        tip.className = 'egg-toast';
-        document.body.appendChild(tip);
-      }
-      tip.textContent = msg;
-      // 两次 rAF 保证已经布局过，过渡才会生效
-      requestAnimationFrame(function () {
-        requestAnimationFrame(function () { tip.classList.add('on'); });
-      });
-      clearTimeout(tip.__t);
-      tip.__t = setTimeout(function () { tip.classList.remove('on'); }, 2800);
-    }
-
     function starRain() {
       if (reduceEgg) return;
       if (document.querySelector('.egg-rain')) return;
@@ -592,7 +654,8 @@
       void avatar.offsetWidth;
       avatar.classList.add('is-wiggle');
       starRain();
-      eggToast('你发现了彩蛋 · 十连击，掉一场星星雨');
+      unlock('egg');
+      siteToast('你发现了彩蛋 · 十连击，掉一场星星雨');
     }
 
     function onTap() {
@@ -637,6 +700,7 @@
       else rootEl.setAttribute('data-theme', 'dark');
       try { localStorage.setItem('faded_theme', dark ? 'light' : 'dark'); } catch (e) {}
       syncTheme();
+      unlock('theme');
     });
   }
 
@@ -667,4 +731,407 @@
       if (!document.hidden) paintClock();
     });
   }
+
+  /* ---------- 11. 作品页旋钮 ---------- */
+  var knobEls = [].slice.call(document.querySelectorAll('.work [data-knob]'));
+  if (knobEls.length) {
+    var fmtX = function (v) { return v.toFixed(1) + '×'; };
+
+    // 量一遍文字实际有多宽，宽度动画才知道该停在哪
+    function measureText(el, txt) {
+      var cs = window.getComputedStyle(el);
+      var m = document.createElement('span');
+      m.style.cssText = 'position:absolute;left:-9999px;top:0;visibility:hidden;white-space:pre;';
+      m.style.font = cs.font;
+      m.style.letterSpacing = cs.letterSpacing;
+      m.textContent = txt;
+      document.body.appendChild(m);
+      var w = m.offsetWidth;
+      document.body.removeChild(m);
+      return w;
+    }
+
+    function applyTypeText(box, input) {
+      if (!box) return;
+      var txt = input.value;
+      box.textContent = txt;
+      var w = measureText(box, txt);
+      box.style.setProperty('--type-w', (w + 2) + 'px');
+      box.style.setProperty('--type-steps', String(Math.max(1, txt.length)));
+      // 换了字就从头再打一遍，否则宽度会从中间跳过去
+      box.style.animation = 'none';
+      void box.offsetWidth;
+      box.style.animation = '';
+    }
+
+    knobEls.forEach(function (input) {
+      var kind = input.getAttribute('data-knob');
+      var work = input.closest ? input.closest('.work') : null;
+      var stage = work ? work.querySelector('.stage') : null;
+      var valEl = input.parentNode.querySelector('.knob-val');
+      if (!stage) return;
+
+      if (kind === 'text') {
+        var typing = work.querySelector('.typing');
+        applyTypeText(typing, input);
+        var wait = null;
+        input.addEventListener('input', function () {
+          clearTimeout(wait);
+          wait = setTimeout(function () { applyTypeText(typing, input); }, 360);
+        });
+        input.addEventListener('change', function () {
+          clearTimeout(wait);
+          applyTypeText(typing, input);
+        });
+        return;
+      }
+
+      var paint = function () {
+        var v = parseFloat(input.value) || 1;
+        if (kind === 'spin') {
+          stage.style.setProperty('--spin-dur', (9 / v).toFixed(2) + 's');
+          stage.style.setProperty('--orbit-dur', (12 / v).toFixed(2) + 's');
+          if (valEl) valEl.textContent = fmtX(v);
+        } else if (kind === 'bob') {
+          stage.style.setProperty('--bob-dur', (3.4 / v).toFixed(2) + 's');
+          if (valEl) valEl.textContent = fmtX(v);
+        } else if (kind === 'angle') {
+          stage.style.setProperty('--sweep-angle', Math.round(v) + 'deg');
+          if (valEl) valEl.textContent = Math.round(v) + '°';
+        } else if (kind === 'sweep') {
+          stage.style.setProperty('--sweep-dur', (4.4 / v).toFixed(2) + 's');
+          if (valEl) valEl.textContent = fmtX(v);
+        } else if (kind === 'type') {
+          stage.style.setProperty('--type-dur', (5.5 / v).toFixed(2) + 's');
+          if (valEl) valEl.textContent = fmtX(v);
+        }
+      };
+      input.addEventListener('input', paint);
+      paint();
+    });
+  }
+
+  /* ---------- 12. 便签墙 ---------- */
+  var wall = document.getElementById('note-wall');
+  var NOTE_KEY = 'faded_notes_v1';
+  // 手机屏幕窄，墙上放不下那么多张，少留几张反而看得清
+  function noteMax() { return window.innerWidth < 640 ? 6 : 9; }
+  var NOTE_COLORS = ['#fdf3c8', '#ffe3d0', '#dbeee2', '#dfe9fb', '#f3e2f1'];
+  var notes = [];
+  var noteZ = 10;
+  var addNote = function () { return false; };
+
+  if (wall) {
+    var noteEmpty = document.getElementById('note-empty');
+    var noteNum = document.getElementById('note-num');
+    var savedNotes = lsGet(NOTE_KEY, []);
+    if (Object.prototype.toString.call(savedNotes) === '[object Array]') {
+      notes = savedNotes.filter(function (n) {
+        return n && typeof n.text === 'string' && n.text && typeof n.id === 'string';
+      }).slice(-noteMax());
+    }
+
+    function saveNotes() { lsSet(NOTE_KEY, notes); }
+
+    function noteById(id) {
+      for (var i = 0; i < notes.length; i++) if (notes[i].id === id) return notes[i];
+      return null;
+    }
+
+    function bumpZ(el) {
+      noteZ++;
+      el.style.zIndex = String(noteZ);
+    }
+
+    function place(el, n) {
+      var maxX = Math.max(0, wall.clientWidth - el.offsetWidth);
+      var maxY = Math.max(0, wall.clientHeight - el.offsetHeight);
+      el.style.left = Math.round(Math.max(0, Math.min(1, n.x || 0)) * maxX) + 'px';
+      el.style.top = Math.round(Math.max(0, Math.min(1, n.y || 0)) * maxY) + 'px';
+    }
+
+    function syncWall() {
+      if (noteEmpty) noteEmpty.hidden = notes.length > 0;
+      if (noteNum) noteNum.textContent = String(notes.length);
+    }
+
+    function removeNote(id) {
+      notes = notes.filter(function (n) { return n.id !== id; });
+      var el = wall.querySelector('.note-card[data-id="' + id + '"]');
+      if (el && el.parentNode) el.parentNode.removeChild(el);
+      saveNotes();
+      syncWall();
+    }
+
+    function bindDrag(el, n) {
+      var st = null;
+      el.addEventListener('pointerdown', function (e) {
+        if (e.target && e.target.classList && e.target.classList.contains('note-del')) return;
+        st = {
+          px: e.clientX, py: e.clientY,
+          l: el.offsetLeft, t: el.offsetTop,
+          w: wall.clientWidth, h: wall.clientHeight,
+          nw: el.offsetWidth, nh: el.offsetHeight
+        };
+        el.classList.add('dragging');
+        bumpZ(el);
+        try { el.setPointerCapture(e.pointerId); } catch (err) {}
+      });
+      el.addEventListener('pointermove', function (e) {
+        if (!st) return;
+        var maxX = Math.max(0, st.w - st.nw);
+        var maxY = Math.max(0, st.h - st.nh);
+        var l = Math.max(0, Math.min(maxX, st.l + e.clientX - st.px));
+        var t = Math.max(0, Math.min(maxY, st.t + e.clientY - st.py));
+        el.style.left = l + 'px';
+        el.style.top = t + 'px';
+        n.x = maxX ? l / maxX : 0;
+        n.y = maxY ? t / maxY : 0;
+      });
+      var end = function () {
+        if (!st) return;
+        st = null;
+        el.classList.remove('dragging');
+        saveNotes();
+      };
+      el.addEventListener('pointerup', end);
+      el.addEventListener('pointercancel', end);
+    }
+
+    function buildNote(n) {
+      var el = document.createElement('div');
+      el.className = 'note-card';
+      el.setAttribute('data-id', n.id);
+      el.style.setProperty('--nc', n.c || NOTE_COLORS[0]);
+      el.style.setProperty('--nr', (typeof n.r === 'number' ? n.r : 0) + 'deg');
+
+      var del = document.createElement('button');
+      del.type = 'button';
+      del.className = 'note-del';
+      del.textContent = '×';
+      del.setAttribute('aria-label', '删掉这张便签');
+      del.addEventListener('click', function (e) {
+        e.stopPropagation();
+        removeNote(n.id);
+      });
+
+      var txt = document.createElement('div');
+      txt.className = 'nc-text';
+      txt.textContent = n.text;
+
+      var meta = document.createElement('div');
+      meta.className = 'nc-meta';
+      var who = document.createElement('b');
+      who.textContent = n.name || '匿名';
+      var when = document.createElement('span');
+      when.textContent = n.d || '';
+      meta.appendChild(who);
+      meta.appendChild(when);
+
+      el.appendChild(del);
+      el.appendChild(txt);
+      el.appendChild(meta);
+      // 入场动画播完就钉住，之后拖动松手不会再弹一次
+      el.addEventListener('animationend', function (e) {
+        if (e.animationName === 'noteIn') el.classList.add('settled');
+      });
+      bindDrag(el, n);
+      return el;
+    }
+
+    function addNoteToWall(name, text) {
+      if (!wall) return false;
+      var d = new Date();
+      // 位置：按便签的实际大小算一个“别压住别人”的间距，随机撒 40 次挑一个空的
+      var anyCard = wall.querySelector('.note-card');
+      var cardW = anyCard ? anyCard.offsetWidth : 152;
+      var cardH = anyCard ? anyCard.offsetHeight : 132;
+      var gapX = (cardW + 14) / Math.max(1, wall.clientWidth - cardW);
+      var gapY = (cardH + 12) / Math.max(1, wall.clientHeight - cardH);
+      var x = .5;
+      var y = .45;
+      var best = -1;
+      for (var i = 0; i < 40; i++) {
+        var cx = .04 + Math.random() * .9;
+        var cy = .03 + Math.random() * .86;
+        var free = true;
+        var near = 2;
+        for (var j = 0; j < notes.length; j++) {
+          var dx = Math.abs((notes[j].x || 0) - cx);
+          var dy = Math.abs((notes[j].y || 0) - cy);
+          if (dx < gapX && dy < gapY) free = false;
+          var dd = Math.max(dx / gapX, dy / gapY);
+          if (dd < near) near = dd;
+        }
+        if (free) { x = cx; y = cy; best = 9; break; }
+        if (near > best) { best = near; x = cx; y = cy; }
+      }
+
+      var n = {
+        id: 'n' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5),
+        name: name,
+        text: text,
+        t: Date.now(),
+        d: (d.getMonth() + 1) + '.' + d.getDate(),
+        c: NOTE_COLORS[notes.length % NOTE_COLORS.length],
+        r: Math.round((Math.random() * 4 - 2) * 10) / 10,
+        x: Math.max(.04, Math.min(.9, x)),
+        y: Math.max(.02, Math.min(.86, y))
+      };
+
+      notes.push(n);
+      while (notes.length > noteMax()) {
+        var gone = notes.shift();
+        var ge = wall.querySelector('.note-card[data-id="' + gone.id + '"]');
+        if (ge && ge.parentNode) ge.parentNode.removeChild(ge);
+      }
+      saveNotes();
+
+      var el = buildNote(n);
+      wall.appendChild(el);
+      place(el, n);
+      bumpZ(el);
+      syncWall();
+      return true;
+    }
+
+    // 首次铺墙
+    notes.forEach(function (n) {
+      var el = buildNote(n);
+      wall.appendChild(el);
+      place(el, n);
+      bumpZ(el);
+    });
+    syncWall();
+
+    var rzTimer = null;
+    window.addEventListener('resize', function () {
+      clearTimeout(rzTimer);
+      rzTimer = setTimeout(function () {
+        if (!wall) return;
+        [].slice.call(wall.querySelectorAll('.note-card')).forEach(function (el) {
+          var n = noteById(el.getAttribute('data-id'));
+          if (n) place(el, n);
+        });
+      }, 140);
+    });
+
+    addNote = addNoteToWall;
+  }
+
+  /* ---------- 13. 探索成就 ---------- */
+  var ACHV_KEY = 'faded_achv_v1';
+  var ACHV_DEF = [
+    { id: 'like', name: '拍手', tip: '点一下「点个赞」' },
+    { id: 'egg', name: '星星雨', tip: '连点头像十下' },
+    { id: 'photos', name: '六张照片', tip: '相册里翻完六张' },
+    { id: 'theme', name: '换过天色', tip: '切换一次日夜' },
+    { id: 'note', name: '留下的字', tip: '贴一张便签' },
+    { id: 'pages', name: '走遍全站', tip: '五个页面都打开' }
+  ];
+  var achvDone = {};
+  (function () {
+    var arr = lsGet(ACHV_KEY, []);
+    if (Object.prototype.toString.call(arr) === '[object Array]') {
+      arr.forEach(function (id) { if (typeof id === 'string') achvDone[id] = 1; });
+    }
+  })();
+
+  var achvList = null;
+  var achvCount = null;
+
+  function paintAchv() {
+    if (!achvList) return;
+    var got = 0;
+    [].slice.call(achvList.children).forEach(function (li) {
+      var on = !!achvDone[li.getAttribute('data-id')];
+      if (on) got++;
+      li.classList.toggle('on', on);
+    });
+    if (achvCount) achvCount.textContent = got + ' / ' + ACHV_DEF.length;
+  }
+
+  function unlock(id) {
+    if (achvDone[id]) return;
+    var def = null;
+    for (var i = 0; i < ACHV_DEF.length; i++) if (ACHV_DEF[i].id === id) def = ACHV_DEF[i];
+    if (!def) return;
+    achvDone[id] = 1;
+    var arr = [];
+    for (var k in achvDone) if (achvDone.hasOwnProperty(k)) arr.push(k);
+    lsSet(ACHV_KEY, arr);
+    paintAchv();
+    siteToast('解锁成就 · ' + def.name);
+  }
+
+  (function buildAchv() {
+    var foot = document.querySelector('.site-footer .footer-inner');
+    if (!foot) return;
+    var box = document.createElement('div');
+    box.className = 'achv';
+
+    var label = document.createElement('span');
+    label.className = 'achv-label';
+    label.appendChild(document.createTextNode('探索成就'));
+    achvCount = document.createElement('b');
+    achvCount.textContent = '0 / ' + ACHV_DEF.length;
+    label.appendChild(achvCount);
+
+    achvList = document.createElement('ul');
+    achvList.className = 'achv-list';
+
+    ACHV_DEF.forEach(function (d) {
+      var li = document.createElement('li');
+      li.className = 'achv-item';
+      li.setAttribute('data-id', d.id);
+      li.setAttribute('data-tip', d.tip);
+      li.setAttribute('tabindex', '0');
+
+      var off = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      off.setAttribute('class', 'ico-off');
+      off.setAttribute('viewBox', '0 0 24 24');
+      off.setAttribute('fill', 'none');
+      off.setAttribute('stroke', 'currentColor');
+      off.setAttribute('stroke-width', '1.8');
+      off.setAttribute('stroke-linecap', 'round');
+      off.innerHTML = '<rect x="4.4" y="10.4" width="15.2" height="9.4" rx="2"/><path d="M7.9 10.4V7.7a4.1 4.1 0 0 1 8.2 0v2.7"/>';
+
+      var on = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      on.setAttribute('class', 'ico-on');
+      on.setAttribute('viewBox', '0 0 24 24');
+      on.setAttribute('fill', 'none');
+      on.setAttribute('stroke', 'currentColor');
+      on.setAttribute('stroke-width', '2.1');
+      on.setAttribute('stroke-linecap', 'round');
+      on.setAttribute('stroke-linejoin', 'round');
+      on.innerHTML = '<path d="M4.6 12.6l4.9 4.9L19.5 6.7"/>';
+
+      var name = document.createElement('span');
+      name.textContent = d.name;
+
+      li.appendChild(off);
+      li.appendChild(on);
+      li.appendChild(name);
+      achvList.appendChild(li);
+    });
+
+    box.appendChild(label);
+    box.appendChild(achvList);
+    foot.appendChild(box);
+    paintAchv();
+  })();
+
+  // 「走遍全站」：五个页面各打开一次就点亮
+  (function trackPages() {
+    var PAGES = ['index.html', 'about.html', 'works.html', 'gallery.html', 'thoughts.html'];
+    var here = (location.pathname.split('/').pop() || 'index.html').toLowerCase();
+    if (PAGES.indexOf(here) < 0) return;
+    var seenPages = lsGet('faded_pages_v1', []);
+    if (Object.prototype.toString.call(seenPages) !== '[object Array]') seenPages = [];
+    if (seenPages.indexOf(here) < 0) {
+      seenPages.push(here);
+      lsSet('faded_pages_v1', seenPages);
+    }
+    if (seenPages.length >= PAGES.length) unlock('pages');
+  })();
 })();

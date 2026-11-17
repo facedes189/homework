@@ -8,7 +8,7 @@
   <script>document.documentElement.className = 'js';</script>
   <link rel="icon" href="images/favicon.svg" type="image/svg+xml">
     <script>try{var _t=localStorage.getItem("faded_theme");if(_t==="dark")document.documentElement.dataset.theme="dark";}catch(e){}</script>
-  <link rel="stylesheet" href="css/style.css?v=20261113p">
+  <link rel="stylesheet" href="css/style.css?v=20261113q">
 </head>
 <body>
 
@@ -113,7 +113,7 @@
       <main class="main">
         <h1 class="page-title">动画作品</h1>
         <p class="page-lead">
-          以下动画均由 AI 生成。
+          以下动画均由 AI 生成。每件作品下面都有一两个旋钮，拖着玩——速度、角度、文字都能改，改的是真实在跑的 CSS 动画。
         </p>
 
         <section class="section">
@@ -134,6 +134,13 @@
                 <p>用圆形渐变做出球体的光影，再把“大陆”当作背景图循环平移，就有了转起来的地球。</p>
                 <p style="margin-top:8px"><code>radial-gradient</code> + <code>background-position</code></p>
               </div>
+              <div class="knobs">
+                <label class="knob">
+                  <span class="knob-name">自转速度</span>
+                  <input type="range" min="0.2" max="3" step="0.1" value="1" data-knob="spin" aria-label="地球自转速度">
+                  <b class="knob-val">1.0×</b>
+                </label>
+              </div>
             </article>
 
             <article class="work reveal" id="w2">
@@ -150,6 +157,13 @@
                 <p>一上一下的缓慢漂浮，配合轻微的旋转，比直线运动更像“被风吹着”。</p>
                 <p style="margin-top:8px"><code>animation</code> + <code>ease-in-out</code></p>
               </div>
+              <div class="knobs">
+                <label class="knob">
+                  <span class="knob-name">漂浮快慢</span>
+                  <input type="range" min="0.3" max="3" step="0.1" value="1" data-knob="bob" aria-label="气球漂浮快慢">
+                  <b class="knob-val">1.0×</b>
+                </label>
+              </div>
             </article>
 
             <article class="work reveal" id="w3">
@@ -162,6 +176,18 @@
                 <p>一条半透明的白色斜条，从左扫到右，再停一会儿——旧版动画里最经典的那道光。</p>
                 <p style="margin-top:8px"><code>transform: rotate</code> + <code>linear-gradient</code></p>
               </div>
+              <div class="knobs">
+                <label class="knob">
+                  <span class="knob-name">光带角度</span>
+                  <input type="range" min="0" max="60" step="1" value="22" data-knob="angle" aria-label="光带倾斜角度">
+                  <b class="knob-val">22°</b>
+                </label>
+                <label class="knob">
+                  <span class="knob-name">扫过速度</span>
+                  <input type="range" min="0.3" max="3" step="0.1" value="1" data-knob="sweep" aria-label="光带扫过速度">
+                  <b class="knob-val">1.0×</b>
+                </label>
+              </div>
             </article>
 
             <article class="work reveal" id="w4">
@@ -172,6 +198,17 @@
                 <h3>04 · 终端打字</h3>
                 <p>用宽度动画配合等宽字体，模拟命令行里逐字出现的效果，光标则在末尾闪烁。</p>
                 <p style="margin-top:8px"><code>steps()</code> + <code>border-right</code></p>
+              </div>
+              <div class="knobs">
+                <label class="knob">
+                  <span class="knob-name">打字速度</span>
+                  <input type="range" min="0.4" max="3" step="0.1" value="1" data-knob="type" aria-label="终端打字速度">
+                  <b class="knob-val">1.0×</b>
+                </label>
+                <label class="knob knob-wide">
+                  <span class="knob-name">打什么字</span>
+                  <input type="text" class="knob-text" value="&gt; hello, little house" maxlength="30" data-knob="text" aria-label="终端显示的文字" spellcheck="false">
+                </label>
               </div>
             </article>
 
@@ -200,6 +237,6 @@
     </div>
   </footer>
 
-  <script src="js/main.js?v=20261113p"></script>
+  <script src="js/main.js?v=20261113q"></script>
 </body>
 </html>
