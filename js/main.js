@@ -12,6 +12,7 @@
    11) 作品页旋钮
    12) 便签墙（拖动 / 本地保存）
    13) 探索成就
+  14) 足迹码（进度搬去别的设备）
 */
 (function () {
   'use strict';
@@ -1019,7 +1020,7 @@
     addNote = addNoteToWall;
   }
 
-  /* ---------- 13. 探索成就 ---------- */
+  /* ---------- 13. 探索成就（含 14 的足迹码） ---------- */
   var ACHV_KEY = 'faded_achv_v1';
   var ACHV_DEF = [
     { id: 'like', name: '拍手', tip: '点一下「点个赞」' },
@@ -1117,6 +1118,7 @@
 
     box.appendChild(label);
     box.appendChild(achvList);
+    box.appendChild(buildShare());
     foot.appendChild(box);
     paintAchv();
   })();
@@ -1134,4 +1136,200 @@
     }
     if (seenPages.length >= PAGES.length) unlock('pages');
   })();
+
+  /* ---------- 14. 足迹码 ----------
+     成就和便签都只存在本机浏览器里，换台设备就是一张白纸。
+     这里把进度折成一行字：f1.<成就 id>-<成就 id>.<打开过的页面>
+     带在链接的 # 后面，在别的设备打开就合过来。
+  */
+  function achvIds() {
+    var out = [];
+    for (var i = 0; i < ACHV_DEF.length; i++) {
+      if (achvDone[ACHV_DEF[i].id]) out.push(ACHV_DEF[i].id);
+    }
+    return out;
+  }
+  function seenPages() {
+    var a = lsGet('faded_pages_v1', []);
+    return Object.prototype.toString.call(a) === '[object Array]' ? a : [];
+  }
+  function footCode() {
+    return 'f1,' + achvIds().join('-') + ',' + seenPages().join('-');
+  }
+  function footLink() {
+    // 用 href 而不是 origin + pathname：本地双击打开（file://）时 origin 是 "null"
+    return location.href.split('#')[0].split('?')[0] + '#foot=' + footCode();
+  }
+  /* 收下一张足迹码，只添不减：别把人家本机已经拿到的成就弄丢 */
+  function applyFoot(raw) {
+    if (!raw) return null;
+    var s = String(raw);
+    var p = s.indexOf('foot=');
+    if (p >= 0) s = s.slice(p + 5); else if (s.charAt(0) === '#') s = s.slice(1);
+    s = s.replace(/\s+/g, '');
+    try { s = decodeURIComponent(s); } catch (e) {}
+    // 逗号分两组：成就 id、打开过的页面（页面名里带 . ，所以不用点分组）
+    var m = /^f1,([A-Za-z0-9_-]*),([A-Za-z0-9_.-]*)$/.exec(s);
+    if (!m) return null;
+
+    var got = 0;
+    (m[1] ? m[1].split('-') : []).forEach(function (id) {
+      for (var i = 0; i < ACHV_DEF.length; i++) {
+        if (ACHV_DEF[i].id === id && !achvDone[id]) { achvDone[id] = 1; got++; }
+      }
+    });
+    if (got) { lsSet(ACHV_KEY, achvIds()); paintAchv(); }
+
+    var pages = seenPages();
+    var added = 0;
+    (m[2] ? m[2].split('-') : []).forEach(function (name) {
+      if (name && pages.indexOf(name) < 0) { pages.push(name); added++; }
+    });
+    if (added) {
+      lsSet('faded_pages_v1', pages);
+      if (pages.length >= 5 && !achvDone.pages) { achvDone.pages = 1; lsSet(ACHV_KEY, achvIds()); paintAchv(); got++; }
+    }
+    return got;
+  }
+
+  function buildShare() {
+    var wrap = document.createElement('span');
+    wrap.className = 'achv-share';
+
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'achv-code';
+    btn.setAttribute('aria-expanded', 'false');
+    btn.setAttribute('aria-label', '足迹码：把进度带到别的设备');
+    btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ' +
+      'stroke-linecap="round"><path d="M9.6 14.4l4.8-4.8"/>' +
+      '<path d="M13.2 5.7l1.7-1.7a3.3 3.3 0 0 1 4.7 4.7l-1.7 1.7"/>' +
+      '<path d="M10.8 18.3l-1.7 1.7a3.3 3.3 0 0 1-4.7-4.7l1.7-1.7"/></svg>' +
+      '<span>足迹码</span>';
+
+    var pop = document.createElement('div');
+    pop.className = 'foot-pop';
+    pop.hidden = true;
+
+    var lead = document.createElement('p');
+    lead.className = 'fp-lead';
+    lead.textContent = '成就只记在这台设备的浏览器里。把这行字带走，在另一台设备上打开，就合过去了。';
+
+    var row1 = document.createElement('div');
+    row1.className = 'fp-row';
+    var link = document.createElement('input');
+    link.className = 'fp-field';
+    link.readOnly = true;
+    link.setAttribute('aria-label', '带足迹的链接');
+    var copy = document.createElement('button');
+    copy.type = 'button';
+    copy.className = 'fp-btn';
+    copy.textContent = '复制';
+    row1.appendChild(link);
+    row1.appendChild(copy);
+
+    var row2 = document.createElement('div');
+    row2.className = 'fp-row';
+    var paste = document.createElement('input');
+    paste.className = 'fp-field';
+    paste.type = 'text';
+    paste.placeholder = '或把别处的足迹码贴到这儿';
+    paste.setAttribute('aria-label', '粘贴足迹码');
+    var imp = document.createElement('button');
+    imp.type = 'button';
+    imp.className = 'fp-btn';
+    imp.textContent = '带入';
+    row2.appendChild(paste);
+    row2.appendChild(imp);
+
+    pop.appendChild(lead);
+    pop.appendChild(row1);
+    pop.appendChild(row2);
+
+    var open = false;
+    var hideTimer = null;
+
+    function show() {
+      link.value = footLink();
+      clearTimeout(hideTimer);
+      pop.style.setProperty('--pop-x', '0px');
+      pop.hidden = false;
+      // 量一次：靠近屏幕右边缘就往回挪，别把页面撑出横向滚动条
+      var r = pop.getBoundingClientRect();
+      var over = r.right - (window.innerWidth - 16);
+      if (over > 0) pop.style.setProperty('--pop-x', -Math.min(over, r.left - 16) + 'px');
+      requestAnimationFrame(function () { pop.classList.add('open'); });
+      btn.setAttribute('aria-expanded', 'true');
+      open = true;
+    }
+    function hide() {
+      if (!open) return;
+      open = false;
+      pop.classList.remove('open');
+      btn.setAttribute('aria-expanded', 'false');
+      hideTimer = setTimeout(function () { pop.hidden = true; }, 220);
+    }
+
+    btn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      if (open) hide(); else show();
+    });
+
+    copy.addEventListener('click', function () {
+      var text = footLink();
+      link.value = text;
+      link.focus();
+      link.setSelectionRange(0, text.length);
+      var ok = false;
+      try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+      if (ok) { siteToast('足迹链接已复制'); return; }
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(function () {
+          siteToast('足迹链接已复制');
+        }, function () {
+          siteToast('已选中，按 Ctrl+C 复制');
+        });
+      } else {
+        siteToast('已选中，按 Ctrl+C 复制');
+      }
+    });
+
+    function doImport() {
+      var got = applyFoot(paste.value);
+      if (got === null) { siteToast('这段字不太像足迹码'); return; }
+      paste.value = '';
+      siteToast(got ? '带入 ' + got + ' 枚成就' : '这张足迹码里的都已经有了');
+    }
+    imp.addEventListener('click', doImport);
+    paste.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') { e.preventDefault(); doImport(); }
+    });
+
+    document.addEventListener('click', function (e) {
+      if (open && !wrap.contains(e.target)) hide();
+    });
+    document.addEventListener('keydown', function (e) {
+      if (open && e.key === 'Escape') { hide(); btn.focus(); }
+    });
+
+    wrap.appendChild(btn);
+    wrap.appendChild(pop);
+    return wrap;
+  }
+
+  /* 打开带 #foot= 的链接：合进来，然后把地址栏擦干净，刷新不会再提示一次。
+     也听 hashchange：已经在这个页面上时，把链接贴进地址栏只会改 hash，不会重新加载 */
+  function readFootHash() {
+    if (!/[#&]foot=/.test(location.hash)) return;
+    var got = applyFoot(location.hash);
+    try {
+      history.replaceState(null, '', location.pathname + location.search);
+    } catch (e) {
+      location.hash = '';
+    }
+    if (got === null) siteToast('这段字不太像足迹码');
+    else if (got) setTimeout(function () { siteToast('已带入 ' + got + ' 枚成就'); }, 300);
+  }
+  readFootHash();
+  window.addEventListener('hashchange', readFootHash);
 })();
