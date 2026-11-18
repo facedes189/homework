@@ -15,6 +15,7 @@
   14) 足迹码（进度搬去别的设备）
   15) 阅读进度环
   16) 心得页目录联动 / 上次读到哪
+  17) 今日一句（按天轮换）
 */
 (function () {
   'use strict';
@@ -1642,5 +1643,34 @@
     });
 
     onScroll();
+  })();
+
+  /* ---------- 17. 今日一句：一天一句，换台设备也是同一句 ---------- */
+  (function dailyQuote() {
+    var el = document.querySelector('[data-quote]');
+    if (!el) return;
+
+    var lines = [
+      '把每一件小事做好，日子就会慢慢亮起来。',
+      '慢一点没关系，别停太久。',
+      '今天看不懂的，明天再看一遍。',
+      '写下来的东西，才算真的想过。',
+      '先把能做的做完，剩下的再说。',
+      '出错的地方，往往离答案最近。',
+      '少刷一会儿，多做一件。',
+      '不会就查，查完就关掉。',
+      '认真吃饭、认真睡觉，也是正事。',
+      '别人的进度是别人的。',
+      '一天做好一件事，一学期就有很多件。',
+      '天黑之前，把今天的事收个尾。'
+    ];
+
+    // 按「今天」取，不按「此刻」：同一天刷新多少次都是同一句，
+    // 用 round 而不是 floor，跨夏令时那天也不会串到前一天
+    var now = new Date();
+    var today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    var first = new Date(now.getFullYear(), 0, 1);
+    var day = Math.round((today - first) / 864e5);
+    el.textContent = '“' + lines[day % lines.length] + '”';
   })();
 })();
