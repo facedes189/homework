@@ -2951,3 +2951,154 @@ html[data-theme="dark"] .tool-btn.is-quiet:hover { background: rgba(123, 182, 23
   .rr-bar { transition: none; }
   .tool-btn { transition: none; }
 }
+
+/* ============================================================
+   26. 心得页：目录联动 + 接着读（5）
+   目录只换底色与字重，不改字色；不用圆点、不用横线
+   ============================================================ */
+.post { scroll-margin-top: 74px; }   /* 锚点别被吸顶导航盖住 */
+
+.post-toc {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 14px 0 2px;
+}
+.post-toc a {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 7px;
+  padding: 6px 13px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #fdfaf4;
+  font-size: 12.5px;
+  letter-spacing: .05em;
+  color: var(--ink-2);
+  transition: background .2s ease, border-color .2s ease;
+}
+.post-toc a .tn {
+  font-style: normal;
+  font-size: 11px;
+  color: var(--ink-3);
+  letter-spacing: .08em;
+}
+.post-toc a:hover { background: #fff; border-color: #cfd9e2; }
+.post-toc a.cur {
+  background: rgba(11, 95, 165, .085);
+  border-color: rgba(11, 95, 165, .3);
+  font-weight: 600;
+}
+.post-toc a:focus-visible,
+.rs-go:focus-visible,
+.rs-x:focus-visible {
+  outline: 2px solid rgba(11, 95, 165, .32);
+  outline-offset: 2px;
+}
+
+/* 左栏那份目录跟着一起亮 */
+.side-list a.cur {
+  background: rgba(11, 95, 165, .07);
+  font-weight: 600;
+}
+
+/* --- 「上次读到」的小条 --- */
+.read-resume {
+  position: fixed;
+  left: 50%;
+  bottom: 74px;            /* 让开底部的小提示条 */
+  z-index: 26;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: calc(100vw - 28px);
+  padding: 8px 10px 8px 16px;
+  border: 1px solid rgba(27, 27, 31, .1);
+  border-radius: 999px;
+  background: rgba(253, 250, 244, .94);
+  box-shadow: 0 8px 22px rgba(27, 27, 31, .13);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  opacity: 0;
+  transform: translate(-50%, 8px);
+  pointer-events: none;
+  transition: opacity .26s ease, transform .26s ease;
+}
+.read-resume.on { opacity: 1; transform: translate(-50%, 0); pointer-events: auto; }
+.read-resume.off { opacity: 0; transform: translate(-50%, 8px); pointer-events: none; }
+.rs-say {
+  min-width: 0;
+  font-size: 12.5px;
+  letter-spacing: .04em;
+  color: var(--ink-3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.rs-say strong { color: var(--ink); font-weight: 600; margin-left: 3px; }
+.rs-n { display: none; margin-left: 3px; }
+.rs-go {
+  flex: none;
+  padding: 6px 15px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--blue);
+  color: #fff;
+  font: inherit;
+  font-size: 12.5px;
+  letter-spacing: .06em;
+  cursor: pointer;
+  transition: translate .2s ease, box-shadow .2s ease;
+}
+.rs-go:hover { translate: 0 -1px; box-shadow: 0 6px 14px rgba(11, 95, 165, .28); }
+.rs-go:active { translate: 0 0; }
+.rs-x {
+  flex: none;
+  width: 26px;
+  height: 26px;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: var(--ink-3);
+  font: inherit;
+  font-size: 17px;
+  line-height: 1;
+  cursor: pointer;
+  transition: background .2s ease;
+}
+.rs-x:hover { background: rgba(27, 27, 31, .06); }
+
+html[data-theme="dark"] .post-toc a {
+  background: #19232d;
+  border-color: #2c3a47;
+  color: #d6e2ee;
+}
+html[data-theme="dark"] .post-toc a .tn { color: rgba(214, 232, 246, .5); }
+html[data-theme="dark"] .post-toc a:hover { background: #1e2934; border-color: #3b4b5b; }
+html[data-theme="dark"] .post-toc a.cur {
+  background: rgba(123, 182, 230, .14);
+  border-color: rgba(123, 182, 230, .36);
+}
+html[data-theme="dark"] .side-list a.cur { background: rgba(123, 182, 230, .12); }
+html[data-theme="dark"] .read-resume {
+  background: rgba(25, 35, 45, .96);
+  border-color: rgba(255, 255, 255, .09);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, .4);
+}
+html[data-theme="dark"] .rs-say { color: rgba(214, 232, 246, .66); }
+html[data-theme="dark"] .rs-say strong { color: #eaf4ff; }
+html[data-theme="dark"] .rs-x { color: rgba(214, 232, 246, .6); }
+html[data-theme="dark"] .rs-x:hover { background: rgba(255, 255, 255, .08); }
+
+@media (max-width: 560px) {
+  /* 窄屏把标题换成篇号，一行放得下；整条抬到进度环上方 */
+  .read-resume { bottom: 64px; gap: 8px; padding: 7px 8px 7px 14px; }
+  .rs-say { flex: none; }
+  .rs-t { display: none; }
+  .rs-n { display: inline; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .read-resume, .read-resume.on, .read-resume.off { transition: none; }
+  .rs-go { transition: none; }
+}

@@ -14,6 +14,7 @@
    13) 探索成就
   14) 足迹码（进度搬去别的设备）
   15) 阅读进度环
+  16) 心得页目录联动 / 上次读到哪
 */
 (function () {
   'use strict';
@@ -1459,5 +1460,187 @@
     });
     // 图片是懒加载的，晚一点再量一次高度
     setTimeout(function () { measure(); onScroll(); }, 1500);
+  })();
+
+  /* ---------- 16. 心得页：目录联动 + 上次读到哪 ---------- */
+  (function readingTrail() {
+    var posts = [].slice.call(document.querySelectorAll('.post[id]'));
+    if (!posts.length) return;
+
+    var KEY = 'faded_read_v1';
+    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    /* 同一篇在页内目录与左栏目录里各有一个入口，两处一起亮 */
+    var links = {};
+    [].forEach.call(document.querySelectorAll('.post-toc a[href^="#"], .side-list a[href^="#"]'), function (a) {
+      var id = a.getAttribute('href').slice(1);
+      (links[id] = links[id] || []).push(a);
+    });
+
+    /* 视线大致落在上半屏：过了这条线的最后一篇，就算正在读它。
+       页面短、三篇同屏时，这条线也得比「顶边 148px」更宽容，否则永远亮第一篇 */
+    function idAt(offset) {
+      var id = '';
+      for (var i = 0; i < posts.length; i++) {
+        if (posts[i].getBoundingClientRect().top <= offset) id = posts[i].id;
+      }
+      if (!id && posts[0].getBoundingClientRect().top < window.innerHeight * 0.9) id = posts[0].id;
+      return id;
+    }
+    function lineY() { return window.innerHeight * 0.5; }
+
+    var curId = '';
+    var queued = false;
+    var lockId = '';
+
+    function applyCur(id) {
+      if (id === curId) return;
+      if (curId && links[curId]) {
+        links[curId].forEach(function (a) {
+          a.classList.remove('cur');
+          a.removeAttribute('aria-current');
+        });
+      }
+      curId = id;
+      if (id && links[id]) {
+        links[id].forEach(function (a) {
+          a.classList.add('cur');
+          a.setAttribute('aria-current', 'location');
+        });
+      }
+    }
+
+    function paintToc() {
+      queued = false;
+      applyCur(lockId || idAt(lineY()));
+    }
+
+    /* 点目录、或从带 #p2 的链接进来时，先按用户点的这篇点亮；
+       只有他自己滚轮/手势/按键往下走，才交还给滚动位置判断 */
+    function lockTo(id) {
+      if (!id || !links[id]) return;
+      lockId = id;
+      applyCur(id);
+    }
+    function unlock() { lockId = ''; }
+    [].forEach.call(document.querySelectorAll('.post-toc a[href^="#"], .side-list a[href^="#"]'), function (a) {
+      a.addEventListener('click', function () { lockTo(a.getAttribute('href').slice(1)); });
+    });
+    window.addEventListener('wheel', unlock, { passive: true });
+    window.addEventListener('touchstart', unlock, { passive: true });
+    window.addEventListener('keydown', function (e) {
+      if (/^(Arrow|Page|Home|End| |Spacebar)/.test(e.key)) unlock();
+    });
+
+    /* ---- 上次读到哪 ---- */
+    var tracking = false;   // 提示处理完才开始记，免得一进页面就 0 覆盖旧记录
+    var moved = false;      // 真的滚过一次才动旧记录：只是路过看一眼不算
+    var saveTimer = null;
+    var bar = null;
+    var shownY = 0;
+
+    function persist() {
+      if (!tracking) return;
+      var max = document.documentElement.scrollHeight - window.innerHeight;
+      if (max <= 320) return;
+      var y = window.scrollY;
+      // 顶部等于还没开始，底部等于读完了，两种情况都不留记录
+      if (y < 240 || max - y < 160) {
+        if (moved) { try { localStorage.removeItem(KEY); } catch (e) {} }
+        return;
+      }
+      var id = lockId || idAt(lineY()) || posts[0].id;
+      lsSet(KEY, { id: id, y: Math.round(y), t: Date.now() });
+    }
+
+    function drop(keep) {
+      if (!bar) return;
+      var el = bar;
+      bar = null;
+      el.classList.remove('on');
+      if (!keep) { try { localStorage.removeItem(KEY); } catch (e) {} }
+      setTimeout(function () {
+        if (el.parentNode) el.parentNode.removeChild(el);
+      }, 320);
+      tracking = true;
+    }
+
+    function remember() {
+      if (!tracking) return;
+      clearTimeout(saveTimer);
+      saveTimer = setTimeout(persist, 700);
+      // 提示还挂着，人却自己往下读了，就别挡着
+      if (bar && Math.abs(window.scrollY - shownY) > 300) drop(true);
+    }
+
+    function onScroll() {
+      if (window.scrollY > 60) moved = true;
+      if (queued) return;
+      queued = true;
+      requestAnimationFrame(paintToc);
+      remember();
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+
+    function offer() {
+      var v = lsGet(KEY, null);
+      var has = v && typeof v.y === 'number' && typeof v.id === 'string'
+                && v.y >= 240 && Date.now() - (v.t || 0) < 60 * 864e5
+                && document.getElementById(v.id);
+
+      // 地址里已经指明要看哪一篇（从别处点进来），点亮它，也不再拦一句
+      var h = (location.hash || '').replace('#', '');
+      if (h && document.getElementById(h)) { lockTo(h); tracking = true; return; }
+
+      if (!has) {
+        if (v) { try { localStorage.removeItem(KEY); } catch (e) {} }
+        tracking = true;
+        return;
+      }
+
+      var target = document.getElementById(v.id);
+      var n = posts.indexOf(target) + 1;
+      var h3 = target.querySelector('h3');
+
+      bar = document.createElement('div');
+      bar.className = 'read-resume';
+      bar.setAttribute('role', 'status');
+      bar.innerHTML =
+        '<span class="rs-say">上次读到' +
+          '<strong class="rs-t">' + (h3 ? h3.textContent : v.id) + '</strong>' +
+          '<span class="rs-n">第 ' + n + ' 篇</span>' +
+        '</span>' +
+        '<button class="rs-go" type="button">接着读</button>' +
+        '<button class="rs-x" type="button" aria-label="不用了">×</button>';
+      document.body.appendChild(bar);
+      shownY = v.y;
+      requestAnimationFrame(function () {
+        requestAnimationFrame(function () { if (bar) bar.classList.add('on'); });
+      });
+      // 十几秒没理它就自己淡下去；记录留着，下次进来还会问
+      setTimeout(function () { if (bar) bar.classList.remove('on'); }, 12000);
+
+      bar.querySelector('.rs-go').addEventListener('click', function () {
+        var max = document.documentElement.scrollHeight - window.innerHeight;
+        var y = Math.min(shownY, max);
+        drop(true);
+        window.scrollTo({ top: y, behavior: reduce ? 'auto' : 'smooth' });
+      });
+      bar.querySelector('.rs-x').addEventListener('click', function () {
+        drop(false);
+        siteToast('好，从头看');
+      });
+    }
+
+    function boot() { setTimeout(offer, 500); }
+    if (document.readyState === 'complete') boot();
+    else window.addEventListener('load', boot);
+
+    window.addEventListener('pagehide', persist);
+    document.addEventListener('visibilitychange', function () {
+      if (document.visibilityState === 'hidden') persist();
+    });
+
+    onScroll();
   })();
 })();
