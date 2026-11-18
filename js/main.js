@@ -407,6 +407,12 @@
     var paintQueued = false;
     function render() {
       if (shown === null) return;
+      /* 标签页在后台时 rAF 会被浏览器暂停，数字会一直空着显示「—」；
+         这种情况先同步写一次，等切回前台再走合并写入 */
+      if (!window.requestAnimationFrame || document.visibilityState === 'hidden') {
+        if (likeNum.textContent !== String(shown)) likeNum.textContent = shown;
+        return;
+      }
       if (paintQueued) return;
       paintQueued = true;
       var go = function () {
