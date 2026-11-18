@@ -8,7 +8,7 @@
   <script>document.documentElement.className = 'js';</script>
   <link rel="icon" href="images/favicon.svg" type="image/svg+xml">
     <script>try{var _t=localStorage.getItem("faded_theme");if(_t==="dark")document.documentElement.dataset.theme="dark";}catch(e){}</script>
-  <link rel="stylesheet" href="css/style.css?v=20261113r">
+  <link rel="stylesheet" href="css/style.css?v=20261113s">
 </head>
 <body>
 
@@ -115,6 +115,20 @@
         <p class="page-lead">
           以下动画均由 AI 生成。每件作品下面都有一两个旋钮，拖着玩——速度、角度、文字都能改，改的是真实在跑的 CSS 动画。
         </p>
+
+        <div class="work-tools">
+          <button class="tool-btn" id="work-dice" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M17.2 3.6h3.2v3.2"/><path d="M20.4 3.6l-5.6 5.6"/>
+              <path d="M6.8 20.4H3.6v-3.2"/><path d="M3.6 20.4l5.6-5.6"/>
+              <path d="M20.4 17.2v3.2h-3.2"/><path d="M20.4 20.4l-5.6-5.6"/>
+              <path d="M3.6 6.8V3.6h3.2"/><path d="M3.6 3.6l5.6 5.6"/>
+            </svg>
+            <span>随机一下</span>
+          </button>
+          <button class="tool-btn is-quiet" id="work-reset" type="button">恢复默认</button>
+        </div>
 
         <section class="section">
           <div class="section-head">
@@ -237,6 +251,6 @@
     </div>
   </footer>
 
-  <script src="js/main.js?v=20261113r"></script>
+  <script src="js/main.js?v=20261113s"></script>
 </body>
 </html>

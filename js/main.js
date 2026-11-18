@@ -9,10 +9,11 @@
    8) 彩蛋
    9) 日夜主题
    10) 首页按时段问候
-   11) 作品页旋钮
+   11) 作品页旋钮（含「随机一下」）
    12) 便签墙（拖动 / 本地保存）
    13) 探索成就
   14) 足迹码（进度搬去别的设备）
+  15) 阅读进度环
 */
 (function () {
   'use strict';
@@ -810,6 +811,48 @@
       input.addEventListener('input', paint);
       paint();
     });
+
+    /* 「随机一下」：把四件作品的旋钮一起摇一组新参数 */
+    var DICE_TEXT = [
+      '> hello, little house',
+      '> 今天也在慢慢练',
+      '> npm run build',
+      '> 你好，世界',
+      '> git push origin main',
+      '> 慢一点也没关系'
+    ];
+    var KNOB_DEF = { spin: '1', bob: '1', angle: '22', sweep: '1', type: '1', text: '> hello, little house' };
+
+    function setKnob(kind, v) {
+      var input = document.querySelector('.work [data-knob="' + kind + '"]');
+      if (!input) return;
+      input.value = v;
+      input.dispatchEvent(new Event(kind === 'text' ? 'change' : 'input', { bubbles: true }));
+    }
+
+    var dice = document.getElementById('work-dice');
+    if (dice) {
+      dice.addEventListener('click', function () {
+        var rnd = function (a, b) { return (a + Math.random() * (b - a)).toFixed(1); };
+        setKnob('spin', rnd(0.4, 2.6));
+        setKnob('bob', rnd(0.5, 2.4));
+        setKnob('angle', String(Math.round(Math.random() * 58)));
+        setKnob('sweep', rnd(0.5, 2.4));
+        setKnob('type', rnd(0.6, 2.4));
+        setKnob('text', DICE_TEXT[Math.floor(Math.random() * DICE_TEXT.length)]);
+        siteToast('换了一组，再点一次又不一样');
+      });
+    }
+
+    var resetBtn = document.getElementById('work-reset');
+    if (resetBtn) {
+      resetBtn.addEventListener('click', function () {
+        for (var k in KNOB_DEF) {
+          if (KNOB_DEF.hasOwnProperty(k)) setKnob(k, KNOB_DEF[k]);
+        }
+        siteToast('回到默认的样子');
+      });
+    }
   }
 
   /* ---------- 12. 便签墙 ---------- */
@@ -1332,4 +1375,89 @@
   }
   readFootHash();
   window.addEventListener('hashchange', readFootHash);
+
+  /* ---------- 15. 阅读进度环 ---------- */
+  (function readRing() {
+    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var R = 14;
+    var C = 2 * Math.PI * R;
+    var MIN = 260;   // 可滚距离少于这么多就不算「长页」，404 这种不给它出场
+    var el = null;
+    var bar = null;
+    var max = 0;
+    var queued = false;
+    var done = false;
+    var awayTimer = null;
+
+    function build() {
+      el = document.createElement('button');
+      el.type = 'button';
+      el.className = 'read-ring';
+      el.setAttribute('aria-label', '回到顶部');
+      el.setAttribute('title', '回到顶部');
+      el.innerHTML =
+        '<svg viewBox="0 0 34 34" aria-hidden="true">' +
+        '<circle class="rr-track" cx="17" cy="17" r="' + R + '"/>' +
+        '<circle class="rr-bar" cx="17" cy="17" r="' + R + '"/>' +
+        '<path class="rr-tick" d="M11.4 17.5l3.7 3.7 7.5-7.8"/>' +
+        '</svg>';
+      document.body.appendChild(el);
+      bar = el.querySelector('.rr-bar');
+      bar.style.strokeDasharray = C.toFixed(2);
+      bar.style.strokeDashoffset = C.toFixed(2);
+      el.addEventListener('click', function () {
+        window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' });
+      });
+    }
+
+    function measure() {
+      max = document.documentElement.scrollHeight - window.innerHeight;
+      if (max > MIN && !el) build();
+      if (el) el.style.display = max > MIN ? '' : 'none';
+    }
+
+    function paint() {
+      queued = false;
+      if (!el || max <= MIN) return;
+      var p = window.scrollY / max;
+      if (p < 0) p = 0; else if (p > 1) p = 1;
+      bar.style.strokeDashoffset = (C * (1 - p)).toFixed(2);
+      el.classList.toggle('is-vis', window.scrollY > 110);
+
+      if (p > 0.995) {
+        if (!done) {
+          done = true;
+          el.classList.add('done');
+          el.classList.remove('is-away');
+          // 读完了停两秒退场；往上滚回来它会重新出现
+          clearTimeout(awayTimer);
+          awayTimer = setTimeout(function () { el.classList.add('is-away'); }, 2000);
+        }
+      } else if (done) {
+        done = false;
+        clearTimeout(awayTimer);
+        el.classList.remove('done', 'is-away');
+      }
+    }
+
+    function onScroll() {
+      if (queued) return;
+      queued = true;
+      requestAnimationFrame(paint);
+    }
+
+    measure();
+    if (el) paint();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', function () {
+      measure();
+      onScroll();
+    });
+    window.addEventListener('load', function () {
+      measure();
+      onScroll();
+    });
+    // 图片是懒加载的，晚一点再量一次高度
+    setTimeout(function () { measure(); onScroll(); }, 1500);
+  })();
 })();

@@ -2821,3 +2821,133 @@ html[data-theme="dark"] .form-tip .again { color: #7bb6e6; }
 @media (prefers-reduced-motion: reduce) {
   .foot-pop { transition: none; }
 }
+
+/* ============================================================
+   23. 页面转场（A）
+   跨文档 View Transition：旧页轻轻淡出，新页从下方浮上来。
+   不支持的浏览器直接跳转，等于没有这一段
+   ============================================================ */
+@view-transition { navigation: auto; }
+
+@keyframes vtLeave {
+  to { opacity: 0; transform: translateY(-8px) scale(.997); }
+}
+@keyframes vtEnter {
+  from { opacity: 0; transform: translateY(10px) scale(.997); }
+}
+::view-transition-old(root) { animation: vtLeave .28s ease both; }
+::view-transition-new(root) { animation: vtEnter .36s cubic-bezier(.2, .8, .3, 1) both; }
+
+/* ============================================================
+   24. 阅读进度环（B）
+   右下角一圈细线，滚到底闭合成勾，停两秒退场；点一下回到顶部
+   ============================================================ */
+.read-ring {
+  position: fixed;
+  right: 22px;
+  bottom: 22px;
+  width: 42px;
+  height: 42px;
+  /* 一圈纸色的底：压到蓝色侧栏或深色页脚上也还看得见 */
+  padding: 4px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(253, 250, 244, .82);
+  box-shadow: 0 4px 12px rgba(27, 27, 31, .12), inset 0 0 0 1px rgba(27, 27, 31, .06);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+  cursor: pointer;
+  opacity: 0;
+  transform: translateY(6px);
+  pointer-events: none;
+  transition: opacity .3s ease, transform .3s ease;
+  z-index: 24;
+}
+.read-ring.is-vis { opacity: 1; transform: none; pointer-events: auto; }
+.read-ring.is-away { opacity: 0; transform: translateY(6px); pointer-events: none; }
+.read-ring svg { display: block; width: 100%; height: 100%; }
+.rr-track {
+  fill: none;
+  stroke: rgba(27, 27, 31, .13);
+  stroke-width: 2.2;
+}
+.rr-bar {
+  fill: none;
+  stroke: var(--blue);
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  transform-box: fill-box;
+  transform-origin: 50% 50%;
+  transform: rotate(-90deg);
+  transition: stroke-dashoffset .12s linear, stroke .3s ease;
+}
+.rr-tick {
+  fill: none;
+  stroke: #cf9212;
+  stroke-width: 2.1;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0;
+  transition: opacity .3s ease;
+}
+.read-ring.done .rr-bar { stroke: #d99b16; }
+.read-ring.done .rr-tick { opacity: 1; }
+.read-ring:focus-visible { outline: 1px solid rgba(11, 95, 165, .45); outline-offset: 3px; border-radius: 50%; }
+html[data-theme="dark"] .rr-track { stroke: rgba(255, 255, 255, .15); }
+html[data-theme="dark"] .rr-bar { stroke: #7bb6e6; }
+html[data-theme="dark"] .read-ring.done .rr-bar { stroke: #f0b429; }
+html[data-theme="dark"] .rr-tick { stroke: #f0b429; }
+
+html[data-theme="dark"] .read-ring {
+  background: rgba(24, 30, 38, .8);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, .35), inset 0 0 0 1px rgba(255, 255, 255, .08);
+}
+@media (max-width: 560px) {
+  .read-ring { right: 13px; bottom: 14px; width: 38px; height: 38px; padding: 3px; }
+}
+
+/* ============================================================
+   25. 作品页「随机一下」（E）
+   ============================================================ */
+.work-tools {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  flex-wrap: wrap;
+  margin: 14px 0 -6px;
+}
+.tool-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px 6px 12px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #fdfaf4;
+  font: inherit;
+  font-size: 12.5px;
+  letter-spacing: .06em;
+  color: var(--ink-2);
+  cursor: pointer;
+  transition: background .22s ease, border-color .22s ease;
+}
+.tool-btn svg { width: 13px; height: 13px; flex: none; }
+.tool-btn:hover { background: #fff; border-color: #cfd9e2; }
+.tool-btn:focus-visible { outline: 2px solid rgba(11, 95, 165, .3); outline-offset: 2px; }
+.tool-btn.is-quiet {
+  padding: 6px 13px;
+  background: none;
+  color: var(--ink-3);
+}
+.tool-btn.is-quiet:hover { background: rgba(11, 95, 165, .05); border-color: var(--line); }
+html[data-theme="dark"] .tool-btn { background: #19232d; border-color: #2c3a47; color: #d6e2ee; }
+html[data-theme="dark"] .tool-btn:hover { background: #1e2934; border-color: #3b4b5b; }
+html[data-theme="dark"] .tool-btn.is-quiet { background: none; color: rgba(214, 232, 246, .62); }
+html[data-theme="dark"] .tool-btn.is-quiet:hover { background: rgba(123, 182, 230, .1); border-color: #2c3a47; }
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root), ::view-transition-new(root) { animation: none; }
+  .read-ring, .read-ring.is-vis, .read-ring.is-away { transition: none; }
+  .rr-bar { transition: none; }
+  .tool-btn { transition: none; }
+}
