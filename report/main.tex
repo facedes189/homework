@@ -1,0 +1,276 @@
+% !TEX program = xelatex
+% =====================================================================
+%  《新生实践课》课程实验报告
+%  编译方式：XeLaTeX
+% =====================================================================
+\documentclass[12pt,a4paper,fontset=fandol]{ctexart}
+
+% ---------------------------- 页面与字体 ----------------------------
+\usepackage{geometry}
+\geometry{a4paper,left=3.17cm,right=3.08cm,top=3.03cm,bottom=2.80cm,footskip=0.90cm}
+
+\usepackage{graphicx}
+\usepackage{url}
+\graphicspath{{images/}{./}}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{enumitem}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{newunicodechar}
+\usepackage{float}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning}
+
+% -------------------- 生僻字字体回退 --------------------
+\makeatletter
+\def\rarecjknone{NONE}
+\let\rarecjkfile\rarecjknone
+\IfFontExistsTF{bsmi00lp.ttf}{\def\rarecjkfile{bsmi00lp.ttf}}{%
+  \IfFontExistsTF{bkai00mp.ttf}{\def\rarecjkfile{bkai00mp.ttf}}{%
+    \IfFontExistsTF{rare-cjk.otf}{\def\rarecjkfile{rare-cjk.otf}}{}%
+  }%
+}
+\ifx\rarecjkfile\rarecjknone\else
+  \setCJKfamilyfont{rarecjk}{\rarecjkfile}[Scale=1.08]%
+  \newunicodechar{屾}{{\CJKfamily{rarecjk}\char"5C7E}}%
+\fi
+\makeatother
+
+\setmainfont{texgyretermes}[
+  Extension      = .otf,
+  UprightFont    = *-regular,
+  BoldFont       = *-bold,
+  ItalicFont     = *-italic,
+  BoldItalicFont = *-bolditalic
+]
+
+% ---------------------------- 页眉页脚 ------------------------------
+\pagestyle{fancy}
+\fancyhf{}
+\fancyfoot[C]{\fontsize{9}{11}\selectfont\thepage}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
+\fancypagestyle{plain}{%
+  \fancyhf{}%
+  \fancyfoot[C]{\fontsize{9}{11}\selectfont\thepage}%
+  \renewcommand{\headrulewidth}{0pt}}
+
+% ---------------------------- 正文行距 ------------------------------
+\linespread{1.6}
+
+% 浮动体宽松度：避免整页只剩一张图
+\renewcommand{\topfraction}{0.95}
+\renewcommand{\bottomfraction}{0.70}
+\renewcommand{\textfraction}{0.05}
+\renewcommand{\floatpagefraction}{0.96}
+\setcounter{topnumber}{3}
+\setcounter{bottomnumber}{2}
+\setcounter{totalnumber}{4}
+
+% ---------------------------- 章节标题 ------------------------------
+\titleformat{\section}[hang]
+  {\heiti\zihao{4}}
+  {\thesection.}{0.15em}{}
+\titlespacing*{\section}{0pt}{53pt}{0.5\baselineskip}
+
+% ---------------------------- 图题 ----------------------------------
+\DeclareCaptionFont{heiwu}{\heiti\zihao{5}}
+\captionsetup[figure]{font=heiwu,labelfont=heiwu,labelsep=space,skip=6pt}
+\captionsetup[subfigure]{font=heiwu,labelfont=heiwu,labelsep=space,skip=4pt}
+\makeatletter
+\renewcommand{\fnum@figure}{\figurename\thefigure}
+\makeatother
+
+% ---------------------------- 自定义命令 ----------------------------
+\newlist{lablist}{enumerate}{1}
+\setlist[lablist]{label=\arabic*),leftmargin=1.5em,labelsep=0.45em,
+  topsep=0.4\baselineskip,itemsep=0.5\baselineskip,parsep=0pt}
+
+\newcommand{\coverlogo}{%
+  \IfFileExists{images/school_title.png}%
+    {\includegraphics[width=7.36cm]{images/school_title.png}}%
+    {\IfFileExists{school_title.png}%
+      {\includegraphics[width=7.36cm]{school_title.png}}%
+      {{\kaishu\fontsize{33pt}{40pt}\selectfont 华中科技大学}}}}
+
+\begin{document}
+
+% =====================================================================
+%                              封  面
+% =====================================================================
+\thispagestyle{plain}
+
+\vspace*{-0.28cm}
+{\centering
+  \coverlogo\par}
+
+\vspace{1.06cm}
+{\centering
+  {\fangsong\zihao{0}%
+   课\hspace{11pt}程\hspace{11pt}实\hspace{11pt}验\hspace{11pt}报\hspace{11pt}告}\par}
+
+\vspace{2.72cm}
+{\centering\zihao{4}%
+  \makebox[2.62cm][l]{课程名称：}\underline{\makebox[5.68cm][c]{新生实践课}}\par}
+
+\vspace{6.93cm}
+{\centering\zihao{4}%
+  \makebox[2.62cm][l]{专业班级：}\underline{\makebox[5.68cm][c]{计算机2601班}}\par
+  \vspace{0.15cm}
+  \makebox[2.62cm][l]{学\hspace{2em}号：}\underline{\makebox[5.68cm][c]{U202614897}}\par
+  \vspace{0.15cm}
+  \makebox[2.62cm][l]{姓\hspace{2em}名：}\underline{\makebox[5.68cm][c]{陈镝屾}}\par
+  \vspace{0.15cm}
+  \makebox[2.62cm][l]{指导教师：}\underline{\makebox[5.68cm][c]{范晔斌}}\par
+  \vspace{0.15cm}
+  \makebox[2.62cm][l]{报告日期：}\underline{\makebox[5.68cm][c]{2026.11.18}}\par}
+
+\vspace{1.95cm}
+{\centering
+  {\songti\zihao{4}计算机科学与技术学院}\par}
+
+\newpage
+
+% =====================================================================
+%                              正  文
+% =====================================================================
+
+\section{网页整体框架}
+
+站点已经发布在 \url{https://facedes189.github.io/homework/}，一共五个页面：首页、个人简介、动画作品、我的相册、学习心得，另加一张自定义的 404。五个页面不是各写各的，我把它们当成同一副骨架换内容——从上往下依次是页头（站名、回到主页、日夜切换）、一段窄横幅（云、山丘、小屋和三只气球）、导航条（六个入口加一个点赞按钮）、正文的左右两栏（左栏放头像卡、页内目录和“今日一句”，右栏是真正的内容）、页脚（日期、三条快捷链接、一行探索成就）。骨架先定下来，之后改一处导航，五页一起变，不用逐页翻。
+
+结构上最花心思的是“共用”。样式集中在 \texttt{css/style.css}，脚本集中在 \texttt{js/main.js}，页面里只留结构。配色也只认几个变量：蓝 \#0b5fa5、红 \#e1553c、米白 \#fbf7f0，正文颜色另有三层灰。夜间模式没有另写一套样式，只是把变量换掉，所以后来每加一个板块，不必再改两遍。这件事我绕了一圈才明白：第一版是复制了一份 \texttt{style-night.css}，改到第三个页面就维护不动了，两边开始对不上。
+
+\begin{figure}[htbp]
+  \centering
+  \begin{tikzpicture}[
+    font=\footnotesize,
+    page/.style={draw=blue!55,fill=blue!5,rounded corners=3pt,
+      minimum width=2.45cm,minimum height=1.0cm,align=center,inner sep=2pt},
+    home/.style={page,fill=red!7,draw=red!55},
+    ar/.style={-{Stealth[length=1.8mm]},draw=black!55}
+  ]
+    \node[draw=black!25,fill=black!3,rounded corners=3pt,
+          minimum width=13.4cm,minimum height=0.8cm,align=center] (share) at (0,3.05)
+      {共用样式 \texttt{css/style.css}　·　共用脚本 \texttt{js/main.js}　·　统一配色变量};
+
+    \node[home] (home) at (0,1.5) {首页 \texttt{index.html}};
+    \draw[ar] (share.south) -- (home.north);
+
+    \node[page] (about)    at (-4.6,-0.6) {个人简介};
+    \node[page] (works)    at (-1.55,-0.6) {动画作品};
+    \node[page] (gallery)  at (1.55,-0.6)  {我的相册};
+    \node[page] (thoughts) at (4.6,-0.6)   {学习心得};
+
+    \draw[draw=black!45] (0,1.0) -- (0,0.45);
+    \draw[draw=black!45] (-4.6,0.45) -- (4.6,0.45);
+    \draw[ar] (-4.6,0.45) -- (-4.6,-0.05);
+    \draw[ar] (-1.55,0.45) -- (-1.55,-0.05);
+    \draw[ar] (1.55,0.45) -- (1.55,-0.05);
+    \draw[ar] (4.6,0.45) -- (4.6,-0.05);
+
+    \node[page,dashed,draw=black!35,fill=white,minimum width=1.5cm] (e404) at (7.4,1.5) {404};
+  \end{tikzpicture}
+  \caption{网站整体框架（虚线框为自定义 404 页，任何不存在的路径都会落到这里）}
+\end{figure}
+
+\section{主页设计}
+
+首屏第一行不是标题，是一句问候，跟着电脑时间变：清晨“天刚亮，先喝口热水”，上午“脑子最清楚的时候”，午后、傍晚、深夜各有一句，过了十二点就催人睡觉。做法是脚本按小时给 \texttt{<html>} 打一个标记，CSS 决定显示哪一行，所以刷新时不会先闪一下再变。
+
+往下是“有朋自远方来，不亦乐乎”，右侧用几层很淡的同心圆压了个底纹。再往下“本站一览”四个数字——5 个页面、4 段动画、6 张照片、3 篇心得，进入视口时从 0 数上去。这一块第一版是写死的，摆在页面上像一块说明牌；改成计数以后，才有一点“这里是活的”的感觉。六张照片横排一行，点任意一张进相册；最下面四个纯文字链接，把四个分页面再引一遍。
+
+整页只有蓝红两色点在米白上，留白多，晚上看不刺眼。
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=13.6cm]{index.jpg}
+  \caption{主页}
+\end{figure}
+
+\section{分页面设计}
+
+\begin{lablist}
+  \item 个人简介\quad
+    四块内容：01 个人概况（昵称、身份、坐标、专业）、02 联系方式、03 教育背景（时间线，从初中写到现在）、04 写信给我；左上角一排锚点目录，点一下跳一段。“写信给我”原来是个 mailto 链接，点了会弹邮件客户端，很打断人。后来改成表单，提交后在本机生成一张手写体便签贴到下面的墙上，按住还能拖着换位置，位置存进浏览器本地存储，下次打开还在。便签不出本机，真想寄出去再点“用邮件寄一份”。
+
+  \item 动画作品\quad
+    四段纯 CSS，没有一张动图、没有视频：地球自转用径向渐变做球面光影，再把“大陆”当背景图循环平移；气球上升是 ease-in-out 的上下浮动，带一点旋转，比直线运动更像被风吹着；光线掠过是一条半透明斜带从左扫到右，停一会儿再来；终端打字靠 \texttt{steps()} 逐字出现，光标用右边框闪烁。每段下面有一两个滑块，拖的是 CSS 变量：转速、倾角、打字内容，改完立刻生效，能当场证明这些不是录屏。四段动画的初版是我让 AI 写的，然后一段段读懂、改参数改出来的；页面顶上那句“动画由 AI 生成，结构与样式由我逐版调整定稿”就写在明处，我觉得比藏着好。
+
+    \begin{figure}[htbp]
+      \centering
+      \begin{subfigure}[b]{0.475\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{about.jpg}
+        \caption{个人简介}
+      \end{subfigure}\hfill
+      \begin{subfigure}[b]{0.475\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{works.jpg}
+        \caption{动画作品}
+      \end{subfigure}
+      \caption{分页面（一）：个人简介与动画作品}
+    \end{figure}
+
+  \item 我的相册\quad
+    六张都是手机拍的：傍晚的云、雾里的湖、荷叶池塘、写满公式的黑板、手里那颗发光的星、云层里划过的一道亮光。用 CSS 多列排成瀑布流，三列高度错开，进入视口时从“略大、略灰”落定，三列各差 0.08 秒，看着像依次显影。点开是查看器：左右键翻页、底部缩略图直达、双击在 2.2 倍之间切换、Esc 或点空白关闭。关掉以后焦点会回到刚才那张照片——这一条是后来补的，用键盘翻到一半关掉，焦点跑回页首，很别扭。
+
+  \item 学习心得\quad
+    三篇短文按时间排：第一篇写第一次在编辑器里敲出 Hello World；第二篇写“可以参考 AI 的框架、但不能直接搬”这条要求，以及自己照着走一遍时卡住的那次；第三篇是深夜调程序，来回改了七八遍，最后发现是一个中文分号。左边有页内目录，阅读时顶部一条进度环；下次打开会问要不要接着读上次断的地方。
+
+    \begin{figure}[htbp]
+      \centering
+      \begin{subfigure}[b]{0.475\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{gallery.jpg}
+        \caption{我的相册}
+      \end{subfigure}\hfill
+      \begin{subfigure}[b]{0.475\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{thoughts.jpg}
+        \caption{学习心得}
+      \end{subfigure}
+      \caption{分页面（二）：我的相册与学习心得}
+    \end{figure}
+
+\end{lablist}
+
+\section{网页设计小结}
+
+问题基本都出在“本地看着好好的，传上去就不对”。
+
+第一次是照片全裂。Dreamweaver 的实时视图里六张图都在，传到 Pages 上全是破图标。原因是我在 \texttt{src} 里写过 \texttt{C:\textbackslash Users\textbackslash ...} 这样的绝对路径，本机当然找得到，服务器上并没有这个盘。改成 \texttt{images/sunset.jpg} 这种相对路径就正常了。后来我把整个文件夹拷到 U 盘、换个目录打开，确认还能显示，才敢再传。
+
+第二次是托管。一开始用 Gitee Pages，还没等页面调顺，它先下线了。转到 GitHub Pages，仓库名从 \texttt{myhouse} 改成 \texttt{homework}，页面里的链接、README 里的地址、页脚的署名全要跟着改一遍。这件事让我第一次觉得，“改个名字”不是小事。
+
+第三次是 404。Pages 会把任何找不到的路径都交给 404.html，但页面在 \texttt{/homework/xxx/yyy} 这样的深层地址下打开时，里面的 \texttt{css/style.css} 仍按相对路径去找，样式就全丢了。解决办法是先用脚本从地址里反推站点根目录，再把样式、脚本和链接都改成从根开始写。还有一处小坑：刚加夜间模式时，刷新会先白一下再变黑，因为样式表加载完才去读本地存储；后来在页面最前面塞了一小段内联脚本，先把主题标记打上，再让样式表进来，就不闪了。
+
+报告这条线也差不多。模板是从群里下的压缩包，直接拖进 Overleaf 新建项目，编译器要手动选 XeLaTeX，不然中文全是方框。名字里的“屾”字 Fandol 字体没有，编译出来是个空框，模板里已经写好了用另一套字体单独补这一个字的办法。正文那些整行的“×”是占位符，得整行删掉再写；我第一次是把文字接在“×”后面，排出来一塌糊涂。图片放在 \texttt{images/} 下用相对路径引，和网页那边是同一个道理。
+
+五页做完回头看，Dreamweaver 其实只负责打字和预览，真正花时间的是布局怎么摆、路径怎么写、出了问题去哪儿找。这些在课上只占半页幻灯片，做的时候却占了一大半时间。
+
+\section{课程的收获和建议}
+
+\begin{lablist}
+  \item 计算机基础知识\quad
+    以前对计算机的认识停留在“会用”。这一学期知道了文件在磁盘上是怎么放的、路径为什么分相对和绝对、网页打开时浏览器到底做了哪几件事。建议这部分多讲一点文件与路径，后面 Office、网页、Git 全要用到，早点讲清楚能少走很多弯路。
+
+  \item Windows 及 Office 系列软件（Word、Excel、PowerPoint）\quad
+    Word 练的是字效和段落，把《念奴娇》排了一页；Excel 做了一张成绩表，用求平均、按总分排序；PPT 做的是母校郧阳中学，九页，第一次认真调了对齐和母版。建议 Excel 的函数和排序多留一点时间，课上跟着做一遍，课下很容易忘。
+
+  \item 编程工具 Python\quad
+    从缩进开始学，报错看不懂就一行行注释掉试。最大的收获不是会写多少行，而是知道报错信息要先读第一行和最后一行。建议每节课后留两个十几行就能写完的小题目，比看示例管用。
+
+  \item 图像设计软件 Photoshop\quad
+    学了图层、蒙版、抠图。相册里那六张照片是自己手机拍的，只做了裁切和提亮，没敢大改。建议多讲一点导出：网页用的图要多大、存成什么格式，这次做相册时尺寸全靠自己试。
+
+  \item 版本管理软件 Git\quad
+    用 SourceTree 提交、推送。第一次看到提交记录一条条排下来，才明白“版本”是什么意思。建议专门讲一次“改坏了怎么退回去”，这个场景最常用，也最能让人放心大胆地改。
+
+  \item 网页制作（Dreamweaver）\quad
+    这是花时间最多、也最像“做东西”的一节。Dreamweaver 的代码提示和实时视图对新手很友好，真正的门槛在布局和部署。建议把软件操作演示压缩一些，多讲 Flex/Grid 和发布流程；如果能让每个人当场把自己的页面传上去、用手机打开看一眼，印象会比看演示深得多。
+\end{lablist}
+
+\end{document}
